@@ -35,7 +35,7 @@ for i in `echo $SYSAPP`; do
 done
 
 #decompile stuff and copy new resources
-apktool-trds if src/$BUILD/framework-res.apk notta 
+apktool-trds if src/$BUILD/framework-res.apk notta
 for i in `echo $APPLIST`; do
  echo '---'$i'.apk---' 
  apktool-trds d -t notta src/$BUILD/$i.apk
@@ -205,9 +205,9 @@ sed -i '$ i\
 FILE=Camera2/res/values/styles.xml
 sed -i '/name="TextAppearance.DialogWindowTitle"/ s/Title">/Title" parent="">/' $FILE
 
-apktool-trds b Camera2
+apktool-trds b Camera2 2>&1 | grep -v 'has no default translation'
 unzip -od Camera2/build/apk src/$BUILD/Camera2.apk META-INF/MANIFEST.MF META-INF/CERT.SF META-INF/CERT.RSA AndroidManifest.xml
-apktool-trds b Camera2
+apktool-trds b Camera2 2>&1 | grep -v 'has no default translation'
 mv Camera2/dist/Camera2.apk .
 rm Camera2 -r
 apktool-trds d -t notta Camera2.apk
@@ -248,10 +248,10 @@ sed -i 's/33b5e5/404040/g' $FILE
 echo '#\n# RECOMPILE ALL THE PACKAGES\n#'
 for i in `echo $APPLIST`; do
  echo '---'$i'---'
- apktool-trds b $i
+ apktool-trds b $i 2>&1 | grep -v 'has no default translation'
  rm $i/dist/$i.apk
  unzip -od $i/build/apk src/$BUILD/$i.apk META-INF/MANIFEST.MF META-INF/CERT.SF META-INF/CERT.RSA AndroidManifest.xml
- apktool-trds b $i
+ apktool-trds b $i 2>&1 | grep -v 'has no default translation'
 done
 
 # build the .zip
