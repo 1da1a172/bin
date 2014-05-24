@@ -6,9 +6,9 @@ echo '#'
 
 # Definitions
 ROMDIR=~/Dropbox/android/d2vzw/ROMs
-ROM=pa_d2lte-4.3-BETA4-ayysir-20140513.zip
+ROM=pa_d2lte-4.3-BETA6-ayysir-20140523.zip
 OUTDIR=~/Dropbox/android/d2vzw/kk-theme
-BUILD=pa-4.3b4-ayysir-20140513
+BUILD=pa-4.3b6-ayysir-20140513
 RESDIR=src/resources
 PRIVAPP='Dialer Mms Settings SystemUI TeleService ParanoidOTA'
 SYSAPP='Browser Calculator Camera2 DeskClock Gallery2'
@@ -210,9 +210,9 @@ sed -i '$ i\
 FILE=Camera2/res/values/styles.xml
 sed -i '/name="TextAppearance.DialogWindowTitle"/ s/Title">/Title" parent="">/' $FILE
 
-apktool -t ayysir b Camera2  2>&1 | grep -v 'has no default translation'
+apktool -t ayysir b Camera2  2>&1 | grep -v 'has no default translation' 1>&2
 unzip -od Camera2/build/apk src/$BUILD/Camera2.apk META-INF/MANIFEST.MF META-INF/CERT.SF META-INF/CERT.RSA AndroidManifest.xml
-apktool -t ayysir b Camera2 2>&1 | grep -v 'has no default translation'
+apktool -t ayysir b Camera2 2>&1 | grep -v 'has no default translation' 1>&2
 mv Camera2/dist/Camera2.apk .
 rm Camera2 -r
 apktool -t ayysir d Camera2.apk
@@ -253,10 +253,10 @@ sed -i 's/33b5e5/404040/g' $FILE
 echo '#\n# RECOMPILE ALL THE PACKAGES\n#'
 for i in `echo $APPLIST`; do
  echo '---'$i'---'
- apktool -t ayysir b $i 2>&1 | grep -v 'has no default translation'
+ apktool -t ayysir b $i 2>&1 | grep -v 'has no default translation' 1>&2
  rm $i/dist/$i.apk
  unzip -od $i/build/apk src/$BUILD/$i.apk META-INF/MANIFEST.MF META-INF/CERT.SF META-INF/CERT.RSA AndroidManifest.xml
- apktool -t ayysir b $i 2>&1 | grep -v 'has no default translation'
+ apktool -t ayysir b $i 2>&1 | grep -v 'has no default translation' 1>&2
 done
 
 # build the .zip
