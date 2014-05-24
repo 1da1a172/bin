@@ -8,7 +8,7 @@ echo '#'
 ROMDIR=~/Dropbox/android/d2vzw/ROMs
 ROM=pa_d2lte-4.3-BETA6-ayysir-20140523.zip
 OUTDIR=~/Dropbox/android/d2vzw/kk-theme
-BUILD=pa-4.3b6-ayysir-20140513
+BUILD=pa-4.3b6-ayysir-20140523
 RESDIR=src/resources
 PRIVAPP='Dialer Mms Settings SystemUI TeleService ParanoidOTA'
 SYSAPP='Browser Calculator Camera2 DeskClock Gallery2'
