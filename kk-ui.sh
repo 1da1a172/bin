@@ -11,6 +11,7 @@ Take <ROM flashable zip> and create a flashable zip that removes Holo Blue
 	-t		Use a TDRS version of apktool
 	-l <file>	Log to <file>
 	-v		verbose output
+
 EOL
 }
 
@@ -50,11 +51,11 @@ setup_env() { # Get things ready to build
 	# Extract original .apk files
 	mkdir src/$BUILD
 	for i in `echo $PRIVAPP`; do
-		unzip -jd src/$BUILD $ROMDIR/$ROM system/priv-app/$i.apk
+		unzip -jd src/$BUILD $ROM system/priv-app/$i.apk
 	done
-	unzip -jd src/$BUILD $ROMDIR/$ROM system/framework/framework-res.apk
+	unzip -jd src/$BUILD $ROM system/framework/framework-res.apk
 	for i in `echo $SYSAPP`; do
-		unzip -jd src/$BUILD $ROMDIR/$ROM system/app/$i.apk
+		unzip -jd src/$BUILD $ROM system/app/$i.apk
 	done
 
 	apktool -t ayysir if src/$BUILD/framework-res.apk
@@ -326,23 +327,60 @@ sedit_Camera2() {
 
 sedit_Mms() {
 	local FILE=Mms/res/values/colors.xml
-	sed -i '/s/33b5e5/404040/g' $FILE
+	sed -i 's/33b5e5/404040/g' $FILE
 }
 
 # Definitions
 BASEDIR=~/apktool
-ROMDIR=~/Dropbox/android/d2vzw/ROMs
-ROM=pa_d2lte-4.3-BETA6-ayysir-20140523.zip
 OUTDIR=~/Dropbox/android/d2vzw/kk-theme
-BUILD=pa-4.3b6-ayysir-20140523
 RESDIR=src/resources
 PRIVAPP='Dialer Mms Settings SystemUI TeleService ParanoidOTA'
 SYSAPP='Browser Calculator Camera2 DeskClock Gallery2'
 APPLIST=$PRIVAPP\ framework-res\ $SYSAPP
-TAG=ayysir
+TAG=unknown
 APKTOOL=apktool
+REVERT=false
+VERBOSE=false
 E_NORES=10 # Res files not found
 E_GEN=74 # General error (probably a fault in script)
+unset ROM
+unset ROMDIR
+unset BUILD
+
+while :
+do
+	case $1 in
+		-d)
+			OUTDIR=$2
+			shift
+			;;
+		-h)
+			show_help
+			exit 0
+			;;
+		-r)
+			REVERT=true
+			;;
+		-t)
+			APKTOOL=apktool-trds
+			;;
+		-l)
+			LOGFILE=$2
+			shift
+			;;
+		-v)
+			VERBOSE=true
+			;;
+		*.zip)
+			ROM=$1
+			BUILD=`basename ${ROM%.*}`
+			;;
+		*) # No more options. Stop while loop.
+			break
+			;;
+	esac
+	shift
+done
 
 check_deps
 clean_env
