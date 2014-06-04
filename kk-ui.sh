@@ -24,16 +24,20 @@ clean_env() { # Remove all the intermediate files
 		fi
 	done
 
-	if `find dist -name *.apk`; then # Remove old built apks
+	if find dist -name *.apk 1>/dev/null ; then # Remove old built apks
 		rm `find dist -name *.apk`
 	fi
 
-	if `ls *.apk`; then # Remove straggaling apks
+	if ls *.apk 1>/dev/null ; then # Remove straggaling apks
 		rm *.apk
 	fi
 
-	if -e src/$BUILD ; then # Remove extracted apks
+	if [ -e src/$BUILD ] ; then # Remove extracted apks
 		rm -rf src/$BUILD
+	fi
+
+	if ls -d src/pa-4.* 1>/dev/null ; then # Find a better way to do this
+		rm -rf src/pa-4.*
 	fi
 }
 
@@ -58,15 +62,24 @@ setup_env() { # Get things ready to build
 		unzip -jd src/$BUILD $ROM system/app/$i.apk
 	done
 
-	apktool -t ayysir if src/$BUILD/framework-res.apk
+	# Install the framework. apktool 1.5.3 and 2.0.0-rc1 use different syntax for this
+	# TODO do this better. See Comment at var definitions
+	if [ "$APKTOOL" == "$APKTOOL_STABLE" ] ; then
+		$APKTOOL -t $TAG if src/$BUILD/framework-res.apk
+	elif [ "$APKTOOL" == "$APKTOOL_TRDS" ] ; then
+		$APKTOOL if src/$BUILD/framework-res.apk $TAG
+	else
+		echo 'ERROR: Unknown apktool. Cannot install framework.' 1>&2
+		return $E_GEN
+	fi
 }
 
-decode() {
+decode() { # $1=package.akp (include path!)
 	if [ -z $1 ] ; then
 		echo 'ERROR: No package given to decode.' 1>&2
 		return $E_GEN
 	fi
-	$APKTOOL -t $TAG  d $1
+	$APKTOOL d -t $TAG $1
 }
 
 build() { # $1=package (string); $2=special build conditions (dialer,gallery)
@@ -114,7 +127,7 @@ remove_holo_blue() {
 		return $E_GEN
 	fi
 
-	decode $1
+	decode src/$BUILD/$1.apk
 	copy_res $1
 	sedit_$1
 	build $1
@@ -334,11 +347,19 @@ sedit_Mms() {
 BASEDIR=~/apktool
 OUTDIR=~/Dropbox/android/d2vzw/kk-theme
 RESDIR=src/resources
+
 PRIVAPP='Dialer Mms Settings SystemUI TeleService ParanoidOTA'
 SYSAPP='Browser Calculator Camera2 DeskClock Gallery2'
 APPLIST=$PRIVAPP\ framework-res\ $SYSAPP
+
 TAG=unknown
-APKTOOL=apktool
+
+# SRSLY, find a better way to do this. I'm the only one with apktool-trds.
+# Everyone else's is apktool with a different version number
+APKTOOL_STABLE=apktool
+APKTOOL_TRDS=apktool-trds
+APKTOOL=$APKTOOL_STABLE
+
 REVERT=false
 VERBOSE=false
 E_NORES=10 # Res files not found
@@ -347,6 +368,8 @@ unset ROM
 unset ROMDIR
 unset BUILD
 
+
+# Get options
 while :
 do
 	case $1 in
@@ -362,7 +385,7 @@ do
 			REVERT=true
 			;;
 		-t)
-			APKTOOL=apktool-trds
+			APKTOOL=$APKTOOL_TRDS
 			;;
 		-l)
 			LOGFILE=$2
