@@ -185,15 +185,18 @@ sedit_ParanoidOTA() {
 
 sedit_Settings() {
 	local FILE
+	local OLD; local NEW
 
 	FILE=Settings/smali/com/android/settings/applications/LinearColorBar.smali
-	sed -i '/.prologue/,+1 s/ff6634/333334/' $FILE
+	OLD=ff6634; NEW=333334
+	grep $OLD $FILE 1>/dev/null && sed -i '/.prologue/,+1 s/$OLD/$NEW/' $FILE || echo "WARNING: Unable to find $OLD in $FILE" 1>&2
 
 	FILE=Settings/smali/com/android/settings/applications/ManageApplications.smali
-	sed -i s/1060012/106000b/ $FILE
+	OLD=1060012; NEW=10600b
+	grep $OLD $FILE 1>/dev/null && sed -i s/$OLD/$NEW/ $FILE || echo "WARNING: Unable to find $OLD in $FILE" 1>&2
 
 	FILE=Settings/smali/com/android/settings/applications/AppOpsSummary.smali
-	sed -i s/1060012/106000b/ $FILE
+	grep $OLD $FILE 1>/dev/null && sed -i s/$OLD/$NEW/ $FILE || echo "WARNING: Unable to find $OLD in $FILE" 1>&2
 
 	FILE=Settings/res/drawable/data_usage_bar.xml
 	sed -i s/c050ade5/c0ffffff/g $FILE
@@ -352,6 +355,15 @@ sedit_Camera2() {
 sedit_Mms() {
 	local FILE=Mms/res/values/colors.xml
 	sed -i 's/33b5e5/404040/g' $FILE
+}
+
+sedit_Browser() {
+	local FILE=Browser/res/values/colors.xml
+	sed -i '/name="qc_normal"/ s/e02a96bc/cc888888/' $FILE
+	sed -i '/name="qc_selected"/ s/e0ff8800/cc636363/' $FILE
+	sed -i '/name="qc_sub"/ s/f01a5b73/cc888888/' $FILE
+	sed -i '/name="qc_tab_nr"/ s/f033b5e5/cc636363/' $FILE
+	sed -i '/name="navtab_bg"/ s/80606060/ff1c1e20/' $FILE
 }
 
 # Definitions
