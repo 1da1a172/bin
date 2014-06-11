@@ -234,11 +234,11 @@ sedit_framework-res() {
 	sed -i '/name="holo_blue_light"/ s/33b5e5/dbdbdb/' $FILE
 	sed -i '/name="highlighted_text_holo_dark"/ s/33b5e5/ffffff/' $FILE
 	sed -i '/name="highlighted_text_holo_light"/ s/33b5e5/000000/' $FILE
-	#Rush25's theme
+	#Rush25s theme
 	sed -i '/name="holo_blue_dark"/ s/0099cc/636363/' $FILE
 	sed -i '/name="holo_blue_bright"/ s/00ddff/cccccc/' $FILE
 	sed -i '/name="perms_dangerous_/ s/33b5e5/888888/g' $FILE
-	sed -i '/name="keyguard_avatar_frame_pressed_color" s/33b5e5/888888/' $FILE
+	sed -i '/name="keyguard_avatar_frame_pressed_color"/ s/33b5e5/888888/' $FILE
 
 	FILE=framework-res/res/values/styles.xml
 	sed -i '/name="TextAppearance.Holo.DialogWindowTitle"/,/textColor/ s/holo_blue_light/default_dialog_text_holo_dark/' $FILE
@@ -460,10 +460,10 @@ cd $BASEDIR
 check_deps
 clean_env
 setup_env
-
+APPLIST=framework-res
 for APP in `echo $APPLIST`; do
 	remove_holo_blue $APP
 done
-package
+#package
 echo 'Dropbox link:\nhttps://www.dropbox.com/sh/3azn7pw2vkcrhan/URyQaVww7v'
 cd $OLDDIR
