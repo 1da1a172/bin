@@ -182,11 +182,6 @@ sedit_Calculator() {
 	sed -i '/name="ClingTitleText"/,/name="android:textColor"/ s/49c0ec/888888/' $FILE
 }
 
-sedit_ParanoidOTA() {
-	local FILE=ParanoidOTA/res/values/colors.xml
-	sed -i '/name="item_action"/ s/33b5e5/707070/' $FILE
-}
-
 sedit_Settings() {
 	local FILE
 	local OLD; local NEW
@@ -391,7 +386,7 @@ BASEDIR=~/apktool
 OUTDIR=~/Dropbox/android/d2vzw/kk-theme
 RESDIR=src/resources
 
-PRIVAPP='Dialer Mms Settings SystemUI TeleService ParanoidOTA'
+PRIVAPP='Dialer Mms Settings SystemUI TeleService'
 SYSAPP='Browser Calculator Camera2 DeskClock Email Gallery2'
 APPLIST=$PRIVAPP\ framework-res\ $SYSAPP
 
