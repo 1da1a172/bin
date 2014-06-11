@@ -460,10 +460,10 @@ cd $BASEDIR
 check_deps
 clean_env
 setup_env
-APPLIST=framework-res
+
 for APP in `echo $APPLIST`; do
 	remove_holo_blue $APP
 done
-#package
+package
 echo 'Dropbox link:\nhttps://www.dropbox.com/sh/3azn7pw2vkcrhan/URyQaVww7v'
 cd $OLDDIR
