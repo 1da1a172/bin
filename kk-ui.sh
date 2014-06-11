@@ -8,7 +8,7 @@ Take <ROM flashable zip> and create a flashable zip that removes Holo Blue
 
 	-d <dir>	Set output directory to <dir>
 	-r		Create a reversion zip
-	-t		Use a TDRS version of apktool
+	-t		Use TDRS version of apktool
 	-l <file>	Log to <file>
 	-v		verbose output
 
@@ -172,10 +172,14 @@ package() { #TODO cleanup
 }
 
 sedit_Calculator() {
-	local FILE=Calculator/res/values/colors.xml
+	local FILE
 	
-	sed -i '/name="history_result_light"/ s/4ba5e2/707070/' $FILE
-	sed -i '/name="graph_color"/ s/31b6e7/707070/' $FILE
+	FILE=Calculator/res/values/colors.xml
+	sed -i '/name="history_result_light"/ s/4ba5e2/888888/' $FILE
+	sed -i '/name="graph_color"/ s/31b6e7/888888/' $FILE
+	
+	FILE=Calculator/res/values/styles.xml
+	sed -i '/name="ClingTitleText"/,/name="android:textColor"/ s/49c0ec/888888/' $FILE
 }
 
 sedit_ParanoidOTA() {
@@ -230,6 +234,11 @@ sedit_framework-res() {
 	sed -i '/name="holo_blue_light"/ s/33b5e5/dbdbdb/' $FILE
 	sed -i '/name="highlighted_text_holo_dark"/ s/33b5e5/ffffff/' $FILE
 	sed -i '/name="highlighted_text_holo_light"/ s/33b5e5/000000/' $FILE
+	#Rush25's theme
+	sed -i '/name="holo_blue_dark"/ s/0099cc/636363/' $FILE
+	sed -i '/name="holo_blue_bright"/ s/00ddff/cccccc/' $FILE
+	sed -i '/name="perms_dangerous_/ s/33b5e5/888888/g' $FILE
+	sed -i '/name="keyguard_avatar_frame_pressed_color" s/33b5e5/888888/' $FILE
 
 	FILE=framework-res/res/values/styles.xml
 	sed -i '/name="TextAppearance.Holo.DialogWindowTitle"/,/textColor/ s/holo_blue_light/default_dialog_text_holo_dark/' $FILE
@@ -366,6 +375,16 @@ sedit_Browser() {
 	sed -i '/name="navtab_bg"/ s/80606060/ff1c1e20/' $FILE
 }
 
+sedit_Email() {
+	local FILE
+
+	FILE=Email/res/values/colors.xml
+	sed -i '/name="conv_header_text_link_blue"/ s/35b4e3/666666/' $FILE
+	sed -i '/name="swipe_to_refrest_text_color"/ s/0099cc/888888/' $FILE
+	sed -i '/name="holo_blue_dark"/ s/0099cc/666666/' $FILE
+	sed -i '/name="holo_blue_light"/ s/33b5e5/888888/' $FILE
+}
+
 # Definitions
 OLDDIR=`pwd`
 BASEDIR=~/apktool
@@ -373,7 +392,7 @@ OUTDIR=~/Dropbox/android/d2vzw/kk-theme
 RESDIR=src/resources
 
 PRIVAPP='Dialer Mms Settings SystemUI TeleService ParanoidOTA'
-SYSAPP='Browser Calculator Camera2 DeskClock Gallery2'
+SYSAPP='Browser Calculator Camera2 DeskClock Email Gallery2'
 APPLIST=$PRIVAPP\ framework-res\ $SYSAPP
 
 TAG=unknown
