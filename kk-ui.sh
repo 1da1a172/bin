@@ -159,7 +159,7 @@ package() { #TODO cleanup
 	for i in `echo $PRIVAPP`; do
 		 cp src/$BUILD/$i.apk dist/system/priv-app
 	done
-	mv src/$BUILD/framework-res.apk dist/system/framework
+	cp src/$BUILD/framework-res.apk dist/system/framework
 	for i in `echo $SYSAPP`; do
 		cp src/$BUILD/$i.apk dist/system/app
 	done
@@ -375,7 +375,7 @@ sedit_Email() {
 
 	FILE=Email/res/values/colors.xml
 	sed -i '/name="conv_header_text_link_blue"/ s/35b4e3/666666/' $FILE
-	sed -i '/name="swipe_to_refrest_text_color"/ s/0099cc/888888/' $FILE
+	sed -i '/name="swipe_to_refresh_text_color"/ s/0099cc/888888/' $FILE
 	sed -i '/name="holo_blue_dark"/ s/0099cc/666666/' $FILE
 	sed -i '/name="holo_blue_light"/ s/33b5e5/888888/' $FILE
 }
