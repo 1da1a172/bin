@@ -387,7 +387,7 @@ OUTDIR=~/Dropbox/android/d2vzw/kk-theme
 RESDIR=src/resources
 
 PRIVAPP='Dialer Mms Settings SystemUI TeleService'
-SYSAPP='Browser Calculator Camera2 DeskClock Email Gallery2'
+SYSAPP='Browser Calculator Camera2 DeskClock Gallery2'
 APPLIST=$PRIVAPP\ framework-res\ $SYSAPP
 
 TAG=unknown
