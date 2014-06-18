@@ -460,5 +460,5 @@ for APP in `echo $APPLIST`; do
 	remove_holo_blue $APP
 done
 package
-echo 'Dropbox link:\nhttps://www.dropbox.com/sh/3azn7pw2vkcrhan/URyQaVww7v'
+echo 'Dropbox link:\nhttp://goo.gl/Rx0iPR'
 cd $OLDDIR
