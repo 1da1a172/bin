@@ -117,16 +117,10 @@ done
 validate_args
 get_hours
 gen_line
-if $NOFTIFY ; then
-	notify-send "$LINE"
-fi
 
+$NOTIFY && notify-send "$LINE"
 if [ -z $FILE ]; then
-        echo $LINE
+	echo $LINE
 else
-        if $OVERWRITE ; then
-                echo $LINE > $FILE
-        else
-                echo $LINE >> $FILE
-        fi
+        $OVERWRITE && echo $LINE > $FILE || echo $LINE >> $FILE
 fi
