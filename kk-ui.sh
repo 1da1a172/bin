@@ -22,17 +22,31 @@ clean_env() { # Remove all the intermediate files
 		[ -e $i ] && rm -rf $i
 	done
 
-	[ "`find dist -name \*.apk`" ] && rm `find dist -name \*.apk` # Cleanout the dist folder
+	[ -e dist ] && rm -r dist # It's easier just to delete the whole folder if it is there
+	mkdir -p dist/system/{privapp,framework,app} #and recreate the needed structure
 	[ "`find . -maxdepth 1 -name \*.apk`" ] && rm *.apk # remove any straggling .apk files (should never be any)
-	[ -e src/$BUILD ] && rm -rf src/$BUILD # remove extracted zips from this build
+	[ -e src/extracted ] && rm -rf src/extracted # remove old extracted apks
 	[ "`find src -maxdepth 1 -name pa_d2lte\*`" ] && rm -rf src/pa_d2lte* # remove extracted zips from old builds (find a better way)
 }
 
 check_deps() { # Make sure we have everything we need
-	#TODO
+	#TODO: add apktool check, posibbly other stuff
 	if [ ! -d $RESDIR ] ; then # Verify we have the white resources
 		echo "Resource directory not found" 1>&2
-		return $E_NORES
+		exit $E_NORES
+	fi
+	if [ ! -e src/Follow_KK_UI.zip ] ; then
+		echo "src/Follow_KK_UI.zip not found." 1>&2
+		exit $E_NORES #TODO should probably use a different error code
+	fi
+	if [ -z `command -v zip` ] ; then
+		echo "You forgot to install zip."
+		if [ -z `command -v pacman` ] ; then
+			sudo pacman -S zip
+		else
+			echo "And I'm not sure how to install it for you."
+			exit $E_NORES #TODO definitely should be a different error code
+		fi
 	fi
 }
 
@@ -40,21 +54,21 @@ setup_env() { # Get things ready to build
 	local i
 
 	# Extract original .apk files
-	mkdir src/$BUILD
+	mkdir src/extracted
 	for i in `echo $PRIVAPP`; do
-		unzip -jd src/$BUILD $ROM system/priv-app/$i.apk 1>&2
+		unzip -jd src/extracted $ROM system/priv-app/$i.apk 1>&2
 	done
-	unzip -jd src/$BUILD $ROM system/framework/framework-res.apk 1>&2
+	unzip -jd src/extracted $ROM system/framework/framework-res.apk 1>&2
 	for i in `echo $SYSAPP`; do
-		unzip -jd src/$BUILD $ROM system/app/$i.apk 1>&2
+		unzip -jd src/extracted $ROM system/app/$i.apk 1>&2
 	done
 
 	# Install the framework. apktool 1.5.3 and 2.0.0-rc1 use different syntax for this
 	# TODO do this better. See Comment at var definitions
 	if [ "$APKTOOL" = "$APKTOOL_STABLE" ] ; then
-		$APKTOOL -t $TAG if src/$BUILD/framework-res.apk 1>&2
+		$APKTOOL -t $TAG if src/extracted/framework-res.apk 1>&2
 	elif [ "$APKTOOL" = "$APKTOOL_TRDS" ] ; then
-		$APKTOOL if src/$BUILD/framework-res.apk $TAG 1>&2
+		$APKTOOL if src/extracted/framework-res.apk $TAG 1>&2
 	else
 		echo 'ERROR: Unknown apktool. Cannot install framework.' 1>&2
 		return $E_GEN
@@ -90,7 +104,7 @@ build() { # $1=package (string); $2=special build conditions (dialer,gallery)
 	fi
 
 	$APKTOOL -t $TAG b $1 2>&1 | grep -v $FILTER 1>&2
-	unzip -od $1/build/apk src/$BUILD/$1.apk `echo $SIG`
+	unzip -od $1/build/apk src/extracted/$1.apk `echo $SIG`
 	$APKTOOL -t $TAG b $1 2>&1 | grep -v $FILTER 1>&2
 }
 
@@ -131,7 +145,7 @@ remove_holo_blue() {
 		return $E_GEN
 	fi
 
-	decode src/$BUILD/$1.apk
+	decode src/extracted/$1.apk
 	copy_res $1
 	type sedit_$1 1>/dev/null && sedit_$1 # Not all apks need edited
 	build $1
@@ -157,11 +171,11 @@ package() { #TODO cleanup
 
 	#build reversion .zip
 	for i in `echo $PRIVAPP`; do
-		 cp src/$BUILD/$i.apk dist/system/priv-app
+		 cp src/extracted/$i.apk dist/system/priv-app
 	done
-	cp src/$BUILD/framework-res.apk dist/system/framework
+	cp src/extracted/framework-res.apk dist/system/framework
 	for i in `echo $SYSAPP`; do
-		cp src/$BUILD/$i.apk dist/system/app
+		cp src/extracted/$i.apk dist/system/app
 	done
 	cp src/Follow_KK_UI.zip dist/${BUILD}_revert.zip
 	cd dist
