@@ -1,0 +1,11 @@
+##
+## Message logger
+##
+
+## Add a message to the AirRecorder log file
+airrecorder.log.write('hi');
+
+## Add a message to the AirRecorder log file
+airrecorder.log.write(airrecorder.result);
+
+return false;

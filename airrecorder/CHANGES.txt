@@ -1,0 +1,131 @@
+CHANGE HISTORY
+--------------
+
+Date        Version             Changes
+----        -------             -------
+2011/02/21  0.1                 initial release
+2011/03/04  0.2-20110304        added support for placeholders
+2011/03/09  0.2-20110309        package renaming, fixed bug in placeholder replacement
+2011/03/11  0.2-20110311        added support for AOS help processing
+2011/03/14  0.2-20110314        added better error recovery
+2011/03/15  0.2-20110315        added support for non standard SSH port, no enable password
+2011/03/31  0.3-20110331        added support for telnet
+2011/05/16  0.3-20110516        reworked telnet implementation
+2011/07/12  0.4-20110712        
+                                - support for run-once commands (interval = 0)
+                                - support for pre-defined variables (%{})
+                                - support for complex variables (#{})
+                                - added KenP's command list (commands-kenp.txt)
+2011/08/01  0.5
+                                - added parser for show clock, show ap active
+                                - added parser for show ap arm state
+2011/09/01  0.6
+                                - internal release for VisualCfg
+2011/10/25  0.7
+                                - added log file size limit option
+                                - added zip option
+2011/12/08  0.8
+                                - added support for ipv6 access-list
+                                - fix bug in pre-defined variable expansion
+                                - table parser now detects marker automatically
+                                - fast login for ssh/telnet (login speed x 4)
+2012/01/03  0.9
+                     - scripting: added parser for show ap arm history
+                     - scripting: added parser for show ap arm rf-summary
+                     - scripting: row column table parser now understands multiple tables
+                     - scripting: added support for sub-queries
+                     - data post processing support for variables
+                     - variable definition can now contain empty marker
+                     - show clock and show clock timezone added at beginning of session
+                     - added capability to disable remote timing (i.e. no show clock)
+2012/01/24  1.0
+                     - scripting: reworked parsers
+                     - added remote raw time in output result
+                     - added query tags in output result
+                     - added processing statistics
+                     - fixed bug: on record resume, use current file number,
+                       not 00
+                     - added \r to header in log file (for DOS compatibility)
+                     - added --post-command-delay option to add delay after each
+                       command (i.e. don't hammer controller CLI)
+2012/04/16  1.1
+                     - added support for ssh identity authentication (-i and
+                       --identity-file options)
+                     - added support for MSR family products (-m and
+                       --passwordless-enable-mode options)
+                     - added HOWTO
+2012/06/28  1.2
+                     - added support for controller time variables
+                       %{time:hhmm} and %{time:mmmdd}
+                     - added option to throttle or disable the reporting of 
+                       connection status (--reporting-interval or -r)
+                     - added capability to specify complex schedules instead of
+                       interval only. Schedule specification is as follows:
+                       interval[;execution count[;cycle interval[;cycle count]]]
+                     - interval and cycle interval can be specified with m/h
+                       appended to indicate minutes or hours
+                     - added option to terminate recording after some amount of
+                       time (--quit-after)
+                     - added query tag for cycle number
+                     - added new data processor: .replace(regex, replacement)
+                     - option -h (--help) prints the HOWTO.
+2012/07/30  1.2.3
+                     - bug fix: timeouts are honoured during controller connect
+                     - bug fix: don't ask for enable password when using
+                       --passwordless-enable-mode
+                     - bug fix: when --no-remote-timing is in effect, remove
+                       RemoteBeginTime and RemoteEndTime from AirRecorder output
+                     - bug fix: for MSR, don't issue "show clock timezone"
+                     - GPS/NMEA device support.
+                     - added support for controller support mode (user: 
+                       arubasupportadmin)
+                     - added support for execution duration of command in support
+                       mode (i.e. send interrupt after specified amount of seconds)
+2012/08/03  1.2.4
+                     - internal release only
+2012/08/07  1.2.5
+                     - internal release only
+2012/08/10  1.2.6
+                     - added option to disable local timing (--no-local-timing)
+                     - upgraded SSH library
+                     - disable remote timing by default (use --remote-timing to
+                       activate)
+                     - removed --no-remote-timing option
+                     - introducing JEXL scripting (see: 
+                       http://commons.apache.org/jexl/reference/syntax.html#Language_Elements)
+                     - introducing scripting user logging (--user-log)
+                     - introducing %{jexl:return} variable
+                     - adding new option --no-trigger-result
+                     - adding new option --log-file to supply log file name
+2012/10/16  1.2.7
+                     - bug: Instant VC needs some initial connect delay
+                     - add option --instant for Instant VC connections
+                     - add option --msr for MSR connections
+                     - added new data processor: .droplast
+                     - added new predefined variables for instant: 
+                       %{iap.clients:name}, %{iap.clients:ip}, %{iap.clients:mac},
+                       %{iap.aps:name}, %{iap.aps:ip}
+                     - command processing will now skip lines that start with #
+2012/10/18  1.2.8
+                     - bug: --max-log-size 0 and/or --log-file not acknowledged
+2013/01/16  1.2.9
+                     - adding more status when controller is disconnected
+                     - update to latest ganymed-ssh2 libraries (including
+                       update to ssh-connector)
+2013/02/11  1.2.11
+                     - RowColumnTableParser now stops page also on fully blank
+                       line
+                     - added new profile support for 6.2+
+2013/04/08  1.2.12
+                     - graph config model enhancements for VisualCfg
+2013/04/08  1.2.14
+                     - bug: banner processing
+2013/07/26  1.2.15
+                     - adding wlan hotspot profile support for 6.3+
+                     - adding samples/mem.jexl (monitor controller memory allocs)
+                     - CHANGE: previously when specifying --log-file parameter,
+                       --max-log-size was automatically set to zero. To revert to
+                       previous behaviour, please specify --max-log-size 0
+2013/08/13  1.2.16
+                     - adding version hint
+                     - adding support for ARM state parsing for version 6.2+

@@ -1,0 +1,14 @@
+##
+## Message logger
+##
+
+## Print to standard out
+airrecorder.stdout.println('a message for stdout');
+
+## Print to standard error
+airrecorder.stderr.println('a message for stderr');
+
+## Print to user log
+airrecorder.userlog.println('a message for user log');
+
+return false;

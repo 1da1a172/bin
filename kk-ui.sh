@@ -398,6 +398,7 @@ sedit_Email() {
 OLDDIR=`pwd`
 BASEDIR=~/apktool
 OUTDIR=~/Dropbox/android/d2vzw/kk-theme
+dburl='http://goo.gl/Rx0iPR'
 RESDIR=src/resources
 
 PRIVAPP='Mms Settings SystemUI TeleService'
@@ -474,5 +475,6 @@ for APP in `echo $APPLIST`; do
 	remove_holo_blue $APP
 done
 package
-echo 'Dropbox link:\nhttp://goo.gl/Rx0iPR'
+command -v xclip && echo "$dburl" | xclip 
+echo "Dropbox URL:\n$dburl"
 cd $OLDDIR
