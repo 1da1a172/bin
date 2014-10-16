@@ -16,7 +16,7 @@
 5m,show ap association | include TOR-2150
 5m,show ap bss-table ap-name ${apname}
 5m,show ap active ap-name ${apname}
-5m,show ap debug client-table ap-name ${apname} | include Client,Mac,Retries,Idle,---,UAP,HT,Delay,Stat
+5m,show ap debug client-table ap-name ${apname}
 5m,show ap debug gre-tun-stats ap-name ${apname}
 #=============RF ARM==============
 ###10m,show ap arm state ap-name ${apname}
