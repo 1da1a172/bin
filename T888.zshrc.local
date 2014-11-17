@@ -16,7 +16,7 @@ function ssh() {
 
 	if [ -n "$host" ] ; then
 		/usr/bin/ssh $args | tee /tmp/$logname
-		[ -s /tmp/$logname ] && { sed s///g /tmp/$logname | gpg -ear waldrep > ~/.ssh/logs/$logname.asc }
+		[ -s /tmp/$logname ] && { sed s///g /tmp/$logname | gpg -ear waldrep > ~/.ssh/logs/$logname.asc } # if the sed command is split between 2 lines, then you are not interpreting the special character ^M correctly
 		rm /tmp/$logname
 	else
 		/usr/bin/ssh
