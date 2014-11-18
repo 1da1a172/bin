@@ -1,4 +1,4 @@
-#!/usr/bin/zsh -x
+#!/usr/bin/zsh
 
 show_help() {
 	cat << EOL
