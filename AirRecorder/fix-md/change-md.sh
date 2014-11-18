@@ -6,7 +6,7 @@ show_help() {
 usage: $scriptname [options] <local controller>
 
 This script will poll the local controller for all APs terminated to it and
-change the APs' master discovery. Options:
+change the APs master discovery. Options:
 
 	--master	GUI option: Master Controller IP Address/DNS name
 			AP environment variable: master
