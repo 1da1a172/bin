@@ -1,26 +1,46 @@
 #!/usr/bin/zsh
-#echo "This script isn't ready yet. Come back later." ; exit 1
+echo "This script isn't ready yet. Come back later." ; exit 1
 
 declare argnext=efmbdDBAC # short opts w/ arg
-declare -a opts # options we are actually going to pass to grep
+declare -a opts ; opts=( "--color=auto" ) # options to pass to grep
 declare pattern
-declare -a file
+declare -a file # files to pass to grep
+declare optr=false # recursive grep options (named after the shortopt)
+declare optR=false
+
+gen_file_list() { #TODO rename this function
+	[[ ${#file} -eq 0 ]] || ! $optr && return 0 # no files given OR we are not supposed to do any recursing
+
+	local integer i=1
+
+	while [[ $i -le ${#file} ]] ; do # note that the $file array will have elements expanded if/as we recurse
+		if [[ "directory" == "`file -Lb $file[i]`" ]] && { $optR || ! [[ -L "$file[i]" ]] } ; then
+			file+=( `ls -1 $i` ) # add contents of directory to $file
+			file=( ${file[@]/$i} ) # remove directory from $file
+		else
+			(( i++ ))
+		fi
+	done
+}
 
 while :
 do
 	case "$1" in
 		-*)
-			# last shortopt is expecting an argument next
-			[[ "${1: -1}" == [$argnext] && "${1: 2}" != "-" ]] && { opts+=( $1 ); shift }
+			if [[ "${1: 2}" != "-" ]] ; then # is a short option
+				[[ "$1" == *r* ]] && optr=true
+				[[ "$1" == *R* ]] && ( optR=true ; optr=true )
+				[[ "${1: -1}" == [$argnext] ]] && { opts+=( $1 ); shift } # last opt is expecting an argument next
+			fi
 			opts+=( $1 )
-			shift
 			;;
 		*)
 			[[ -z "$1" ]] && break
 			[[ -z $pattern ]] && pattern="$1" || file+="$1"
-			shift
 			;;
 	esac
+	shift
 done
 
+gen_file_list
 grep $opts $pattern $file
