@@ -1,0 +1,26 @@
+#!/usr/bin/zsh
+#echo "This script isn't ready yet. Come back later." ; exit 1
+
+declare argnext=efmbdDBAC # short opts w/ arg
+declare -a opts # options we are actually going to pass to grep
+declare pattern
+declare -a file
+
+while :
+do
+	case "$1" in
+		-*)
+			# last shortopt is expecting an argument next
+			[[ "${1: -1}" == [$argnext] && "${1: 2}" != "-" ]] && { opts+=( $1 ); shift }
+			opts+=( $1 )
+			shift
+			;;
+		*)
+			[[ -z "$1" ]] && break
+			[[ -z $pattern ]] && pattern="$1" || file+="$1"
+			shift
+			;;
+	esac
+done
+
+grep $opts $pattern $file
