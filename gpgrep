@@ -1,27 +1,52 @@
 #!/usr/bin/zsh
-echo "This script isn't ready yet. Come back later." ; exit 1
+#echo "This script isn't ready yet. Come back later." ; exit 1
 
 declare argnext=efmbdDBAC # short opts w/ arg
 declare -a opts ; opts=( "--color=auto" ) # options to pass to grep
 declare pattern
-declare -a file # files to pass to grep
+declare -a file # all files pass handle
+declare -a regfile # unencrypted files
+declare -a pgpfile # encrypted files
 declare optr=false # recursive grep options (named after the shortopt)
 declare optR=false
+declare optDirSkip=false
 
-gen_file_list() { #TODO rename this function
-	[[ ${#file} -eq 0 ]] || ! $optr && return 0 # no files given OR we are not supposed to do any recursing
-
+recurse_dirs() {
 	local integer i=1
 
 	while [[ $i -le ${#file} ]] ; do # note that the $file array will have elements expanded if/as we recurse
 		if [[ "directory" == "`file -Lb $file[i]`" ]] && { $optR || ! [[ -L "$file[i]" ]] } ; then
-			file+=( `ls -1 $i` ) # add contents of directory to $file
-			file=( ${file[@]/$i} ) # remove directory from $file
-		else
-			(( i++ ))
-		fi
+			file+=( `ls -1 $file[i]` )
+		fi # Could have 1-lined this, but it is messier than I prefer
+		(( i++ ))
 	done
 }
+
+unlist_dirs() {
+	$optR && local o="-Lb" || local o="-b"
+	local integer i=1
+
+	while [[ $i -le ${#file} ]] ; do # note that the $file array will lose elements if/as we remove the directories
+		[[ "directory" == "`file $o $file[i]`" ]] && file=( ${file[@]/$file[i]} ) || (( i++ ))
+	done
+}
+
+filter_files() {
+	local integer i
+	for i in `seq ${#file}` ; do
+		[[ "PGP message" == "`file -Lb $file[i]`" ]] && pgpfile+=( "$file[i]" ) || regfile+=( "$file[i]" )
+	done
+}
+
+grep_pgp() {
+	local line
+
+	for i in `seq ${#pgpfile}` ; do
+		echo "\n\nSearching encrypted file: $pgpfile[i]"
+		echo "$pgpfile[i]: `gpg -d $pgpfile[i] | grep $opts $pattern`"
+	done
+}
+
 
 while :
 do
@@ -31,6 +56,16 @@ do
 				[[ "$1" == *r* ]] && optr=true
 				[[ "$1" == *R* ]] && ( optR=true ; optr=true )
 				[[ "${1: -1}" == [$argnext] ]] && { opts+=( $1 ); shift } # last opt is expecting an argument next
+			elif [[ "$1" == --*recursive ]] ; then
+				optr=true
+				[[ "$1" == "--dereference-recursive" ]] && optR=true
+				# this option overrides previous options
+				optDirSkip=false
+			elif [[ "$1" == "--directories=skip" ]] ; then
+				optDirSkip=true
+				# this option overrides previous options
+				optr=false
+				optR=false
 			fi
 			opts+=( $1 )
 			;;
@@ -42,5 +77,9 @@ do
 	shift
 done
 
-gen_file_list
-grep $opts $pattern $file
+[[ ${#file} -ne 0 ]] && $optr && recurse_dirs
+$optr || $optDirSkip && unlist_dirs
+filter_files
+
+[[ 0 -ne ${#pgpfile} ]] && grep_pgp
+[[ 0 -ne ${#regfile} ]] && grep $opts $pattern $regfile
