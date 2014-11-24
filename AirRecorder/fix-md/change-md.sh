@@ -43,11 +43,11 @@ check_args() {
 	local valid=false
 	if [ -z "$master$servername$serverip" ] ; then # All null values; use ADP
 		valid=true
-	elif [ -n "$master" -a -n "$serverip" -a -z "$servername"] ; then # GUI option 2
-		[ -z "$servername" ] && valid=true
+	elif [ -n "$master" -a -n "$serverip" -a -z "$servername" ] ; then # GUI option 2
+		valid=true
 	elif [ -n "$servername" -a -z "$serverip" ] ; then # GUI option 3
 		valid=true
-	fi
+	fi # This could be a giant 1-liner, but the condition would just be too confusing
 	$valid || { echo "Bad AP options" ; show_help ; exit 1 }
 }
 
@@ -77,18 +77,18 @@ get_badap() {
 	local i
 	local -a ap #an array of all APs on the LMS
 
-	for i in $apvar ; do
+	for i in $apvar ; do # AirRecorder returns N/A for null values. These variables are for how AR will report the values
 		[ -z "${(P)i}" ] && local ${i}str="N/A" || local ${i}str="${(P)i}"
 	done
 
 	ap=(`grep '///// Command: show ap provisioning ap-name' ${lms}-aps-00.log | cut -d\  -f 7`)
 	for i in `seq ${#ap[@]}` ; do
 		apmaster=`grep $ap[i] $logfile -A 2 | grep \^Master -m 1 | sed 's/\ \ */\ /g' | cut -d\  -f 2 | sed 's/\r//g'`
-		[ -z "$apmaster" ] && { downap[i]=$ap[i] ; continue } # AirRecorder returns null values only if the AP is down
+		[ -z "$apmaster" ] && { downap+=( "$ap[i]" ) ; continue } # AirRecorder returns null values only if the AP is down
 		apservername=`grep $ap[i] $logfile -A 3 | grep \^Server\ Name -m 1 | sed 's/\ \ */\ /g' | cut -d\  -f 3 | sed 's/\r//g'`
 		apserverip=`grep $ap[i] $logfile -A 4 | grep \^Server\ IP -m 1 | sed 's/\ \ */\ /g' | cut -d\  -f 3 | sed 's/\r//g'`
 
-		[ "$apmaster" != "$masterstr" -o "$apservername" != "$servernamestr" -o "$apserverip" != "$serveripstr" ] && badap[i]=$ap[i]
+		[ "$apmaster" != "$masterstr" -o "$apservername" != "$servernamestr" -o "$apserverip" != "$serveripstr" ] && badap+=( "$ap[i]" )
 	done
 	rm $logfile
 }
@@ -102,7 +102,7 @@ write_expectscript() {
 
 	cat << EOL > $exp
 #!`command -v expect`
-set badap "`echo $badap[*] | sed 's/  / /g'`"
+set badap "$badap[*]"
 
 spawn `command -v ssh` $lms
 expect "($hostname) #" { send "configure terminal\r" }
@@ -184,7 +184,7 @@ do
 	shift
 done
 check_args
-[ -z "$hostname" ] hostname=`echo $lms | cut -d\. -f 1`
+[ -z "$hostname" ] && hostname=`echo $lms | cut -d\. -f 1`
 
 poll_controller
 get_badap
