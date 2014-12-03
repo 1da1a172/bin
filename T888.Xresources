@@ -1,0 +1,23 @@
+xterm*saveLines: 4096
+xterm*termName: xterm-256color
+xterm*foreground: #f2f2f2
+xterm*background: #101010
+xterm*color0: #101010
+xterm*color1: #f13a21
+xterm*color2: #93f91d
+xterm*color3: #ffd00a
+xterm*color4: #004f9e
+xterm*color5: #ec0048
+xterm*color6: #2aa7e7
+xterm*color7: #f2f2f2
+xterm*color8: #1d202f
+xterm*color9: #ff361e
+xterm*color10: #ffc005
+xterm*color11: #93ff00
+xterm*color12: #0071ff
+xterm*color13: #ef0051
+xterm*color14: #4bb8fd
+xterm*color15: #a020f0
+xterm*faceName: Anonymous:size=11:antialias=true
+xterm*scrollBar: false
+*VT100*translations: #override Shift <Btn1Up>: exec-formatted("/usr/bin/chromium '%t'", PRIMARY)
