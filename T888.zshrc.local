@@ -15,7 +15,7 @@ function ssh() {
 
 	if [ -n "$host" ] ; then
 		/usr/bin/ssh $args | tee /tmp/$logname
-		[ -s /tmp/$logname ] && gpg --output ~/.ssh/logs/$logname.asc -ear waldrep /tmp/$logname
+		[ -s /tmp/$logname ] && gpg --output ~/.ssh/logs/$logname.asc -ear $USER /tmp/$logname
 		rm /tmp/$logname
 	else
 		/usr/bin/ssh $args
