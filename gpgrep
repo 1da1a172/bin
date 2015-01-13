@@ -34,7 +34,7 @@ unlist_dirs() { # Would it be better to merge this with recurse_dirs() ?
 filter_files() {
 	local integer i
 	for i in `seq ${#file}` ; do
-		[[ "PGP message" == "`file -Lb $file[i]`" ]] && pgpfile+=( "$file[i]" ) || regfile+=( "$file[i]" )
+		[[ "`file -Lb $file[i]`" == PGP\ message* ]] && pgpfile+=( "$file[i]" ) || regfile+=( "$file[i]" )
 	done
 }
 
