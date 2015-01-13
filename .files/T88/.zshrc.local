@@ -1,0 +1,26 @@
+alias wl-reload='sudo modprobe -r wl && sudo modprobe wl'
+alias VT-Wireless="sudo wpa_supplicant -c /etc/wpa_supplicant/VT-Wireless.conf -i`ip link show | grep wl | cut -d: -f2` -B ; sleep 5 ; sudo dhcpcd`ip link show | grep wl | cut -d: -f2`"
+function ssh() {
+	local opt=false
+	local -a args; 	args=($@)
+	local i
+
+	for i in $args ; do
+		$opt && { opt=false ; continue }
+		[[ $i == \-* ]] && { opt=true ; continue }
+		local host=$i
+		local logname="`date +%Y%b%d-%T` $host.log"
+		break
+	done
+
+	if [ -n "$host" ] ; then
+		/usr/bin/ssh $args | tee /tmp/$logname
+		[ -s /tmp/$logname ] && gpg --output ~/.ssh/logs/$logname.asc -ear $USER /tmp/$logname
+		rm /tmp/$logname
+	else
+		/usr/bin/ssh $args
+	fi
+}
+export PATH=$PATH:~/scripts
+export TERMINAL=/usr/bin/uxterm
+export VISUAL=/usr/bin/vim
