@@ -14,7 +14,7 @@ function ssh() {
 	done
 
 	if [ -n "$host" ] ; then
-		/usr/bin/ssh $args | tee /tmp/$logname
+		/usr/bin/ssh $args | tee >(col -b > /tmp/$logname)
 		[ -s /tmp/$logname ] && gpg --output ~/.ssh/logs/$logname.asc -ear $USER /tmp/$logname
 		rm /tmp/$logname
 	else
