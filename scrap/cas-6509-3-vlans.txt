@@ -1,0 +1,336 @@
+vlan 2917
+ name WLAN-2917
+interface Vlan2917
+ ip vrf forwarding wl
+ ip address 172.30.128.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:a000::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2918
+ name WLAN-2918
+interface Vlan2918
+ ip vrf forwarding wl
+ ip address 172.30.136.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:a001::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2919
+ name WLAN-2919
+interface Vlan2919
+ ip vrf forwarding wl
+ ip address 172.30.144.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:a002::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2920
+ name WLAN-2920
+interface Vlan2920
+ ip vrf forwarding wl
+ ip address 172.30.152.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:a003::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2921
+ name WLAN-2921
+interface Vlan2921
+ ip vrf forwarding wl
+ ip address 172.30.160.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:a004::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2922
+ name WLAN-2922
+interface Vlan2922
+ ip vrf forwarding wl
+ ip address 172.30.168.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:a005::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2923
+ name WLAN-2923
+interface Vlan2923
+ ip vrf forwarding wl
+ ip address 172.30.176.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:a006::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2924
+ name WLAN-2924
+interface Vlan2924
+ ip vrf forwarding wl
+ ip address 172.30.184.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:a007::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2925
+ name WLAN-2925
+interface Vlan2925
+ ip vrf forwarding wl
+ ip address 172.30.192.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:4000::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2926
+ name WLAN-2926
+interface Vlan2926
+ ip vrf forwarding wl
+ ip address 172.30.200.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:4001::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2927
+ name WLAN-2927
+interface Vlan2927
+ ip vrf forwarding wl
+ ip address 172.30.208.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:4002::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2928
+ name WLAN-2928
+interface Vlan2928
+ ip vrf forwarding wl
+ ip address 172.30.216.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:4003::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2929
+ name WLAN-2929
+interface Vlan2929
+ ip vrf forwarding wl
+ ip address 172.30.224.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:4004::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2930
+ name WLAN-2930
+interface Vlan2930
+ ip vrf forwarding wl
+ ip address 172.30.232.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:4005::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2931
+ name WLAN-2931
+interface Vlan2931
+ ip vrf forwarding wl
+ ip address 172.30.240.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:4006::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
+vlan 2932
+ name WLAN-2932
+interface Vlan2932
+ ip vrf forwarding wl
+ ip address 172.30.248.1 255.255.248.0
+ no ip redirects
+ no ip unreachables
+ no ip proxy-arp
+ ip pim sparse-mode
+ ipv6 address 2607:b400:24:4007::1/64
+ ipv6 nd reachable-time 600000
+ ipv6 nd other-config-flag
+ ipv6 nd router-preference High
+ ipv6 nd ra interval 30
+ no ipv6 redirects
+ ipv6 verify unicast reverse-path
+ ipv6 dhcp server wl
+ ipv6 ospf 1 area 11
+ no shutdown
+exit
+!
