@@ -1,0 +1,26 @@
+function ssh () {
+	local opt=false
+	local -a args; args=($@)
+	local i
+
+	for i in $args ; do #we only care about the hostname
+		$opt && { opt=false ; continue } # this element is an option; unflag for the next element and go on
+		[[ $i == \- ]] && { opt=true ; continue } # this and the next element are options; flag it as so and go on
+		local host=$i
+		local logname="`date +$Y%b%d-%T` $host.log"
+		break # we got the hostname and dont care about anything else
+	done
+
+	if [[ -n "$host" ]] ; then #TODO: generate pgp key pair and enable log encryption
+		/usr/bin/ssh $args | tee >(col -b > ~/.ssh/logs/`date +%Y%b%d\-%T`" $1.log")
+		#/usr/bin/ssh $* | tee >(col -b > ~/.ssh/logs/`date +%Y%b%d\-%T`" $1.log")
+		#[ -s /tmp/$logname ] && gpg --output ~/.ssh/logs/$logname.asc -ear $USER /tmp/$logname
+		#rm /tmp/$logname
+	else
+		/usr/bin/ssh $args
+	fi
+}
+
+export PATH=$PATH:~/scripts
+#export TERMINAL=/usr/bin/uxterm
+export VISUAL=/usr/bin/vim
