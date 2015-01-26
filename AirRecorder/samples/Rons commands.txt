@@ -1,3 +1,0 @@
-../airrecorder.sh cas-wlc-x.cns.vt.edu -c ClientData-Generic.arc
-../airrecorder.sh cas-wlc-x.cns.vt.edu -c VenueLoading-apname.arc --placeholders VenueLoading.arph
-../airrecorder.sh cas-wlc-x.cns.vt.edu -c VenueLoadingGeneric.arc

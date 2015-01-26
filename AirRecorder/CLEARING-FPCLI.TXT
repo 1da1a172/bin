@@ -1,4 +1,0 @@
-Ps –ef | grep fpcli
-Kill -9 <fpcli pid>
-
-
