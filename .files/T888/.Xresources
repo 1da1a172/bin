@@ -20,4 +20,4 @@ xterm*color14: #4bb8fd
 xterm*color15: #a020f0
 xterm*faceName: Anonymous:size=11:antialias=true
 xterm*scrollBar: false
-*VT100*translations: #override Shift <Btn1Up>: exec-formatted("/usr/bin/chromium '%t'", PRIMARY)
+*VT100*translations: #override Shift <Btn1Up>: exec-formatted("$BROWSER '%t'", PRIMARY)

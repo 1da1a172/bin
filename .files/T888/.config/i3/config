@@ -30,11 +30,11 @@ exec --no-startup-id numlockx on
 exec --no-startup-id conky -c ~/.config/conky/conky.conf
 exec --no-startup-id xautolock -time 5 -locker lock -notify 10 -notifier 'notify-send "Screen will lock in 10 seconds."'
 exec --no-startup-id dropboxd
-exec i3-sensible-terminal -e screen profanity -a vt
+exec i3-sensible-terminal -e 'screen env LC_ALL=en_US.UTF-8 /usr/bin/profanity'
 
 # Tweak the window/border decorations
-new_window 1pixel
-new_float 1pixel
+new_window pixel 1
+new_float pixel 1
 #hide_edge_borders both
 
 # Use Mouse+$mod to drag floating windows to their wanted position
