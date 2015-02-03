@@ -1,4 +1,12 @@
 source /usr/share/doc/pkgfile/command-not-found.zsh
+bindkey -v
+
+export BROWSER=dwb
+export PATH=$PATH:~/scripts
+export TERMINAL=/usr/bin/termite
+export VISUAL=/usr/bin/vim
+export KEYTIMEOUT=1
+
 function ssh() {
 	local opt=false
 	local -a args; 	args=($@)
@@ -20,8 +28,5 @@ function ssh() {
 		/usr/bin/ssh $args
 	fi
 }
+
 alias profanity='env LC_ALL="en_US.UTF-8" profanity'
-export BROWSER=dwb
-export PATH=$PATH:~/scripts
-export TERMINAL=/usr/bin/termite
-export VISUAL=/usr/bin/vim
