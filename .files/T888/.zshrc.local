@@ -1,13 +1,21 @@
 source /usr/share/doc/pkgfile/command-not-found.zsh
 bindkey -v
 #function zle-line-init zle-keymap-select {
-#    VIM_PROMPT="%{fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
-#    RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/} $EPS"
+#    VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
+#    RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/} $EPS1"
 #    zle reset-prompt
 #    zle-smkx
 #}
 #zle -N zle-line-init
 #zle -N zle-keymap-select
+
+# It is standard to use '$' for a non-root user. Not '%'. C'mon grml...
+grml_prompt_token_default[percent]='$ '
+
+# Add style option for indicating we are in vim normal mode
+grml_prompt_pre_default+=( normal '%{%B%F{yellow}' )
+grml_prompt_post_default+=( normal '%f' )
+grml_prompt_token_default+=( normal '[NORMAL]' )
 
 export BROWSER=dwb
 export PATH=$PATH:~/scripts
