@@ -1,5 +1,13 @@
 source /usr/share/doc/pkgfile/command-not-found.zsh
 bindkey -v
+#function zle-line-init zle-keymap-select {
+#    VIM_PROMPT="%{fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
+#    RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/} $EPS"
+#    zle reset-prompt
+#    zle-smkx
+#}
+#zle -N zle-line-init
+#zle -N zle-keymap-select
 
 export BROWSER=dwb
 export PATH=$PATH:~/scripts
@@ -8,25 +16,31 @@ export VISUAL=/usr/bin/vim
 export KEYTIMEOUT=1
 
 function ssh() {
-	local opt=false
-	local -a args; 	args=($@)
-	local i
+    local opt=false
+    local -a args; args=($@)
+    local i
 
-	for i in $args ; do #we only care about the hostname
-		$opt && { opt=false ; continue } # this element is an option; unflag for the next element and go on
-		[[ $i == \-* ]] && { opt=true ; continue } # this and the next element are options; flag it as so and go on
-		local host=$i
-		local logname="`date +%Y%b%d-%T` $host.log"
-		break # we got the hostname and dont care about anything else
-	done
+    for i in $args ; do #we only care about the hostname
+        $opt && { opt=false ; continue } # this element is an option; unflag for the next element and go on
+        [[ $i == \-* ]] && { opt=true ; continue } # this and the next element are options; flag it as so and go on
+        local host=$i
+        local logname="`date +%Y%b%d-%T` $host.log"
+        break # we got the hostname and dont care about anything else
+    done
 
-	if [ -n "$host" ] ; then
-		/usr/bin/ssh $args | tee >(col -b > /tmp/$logname)
-		[ -s /tmp/$logname ] && gpg --output ~/.ssh/logs/$logname.asc -ear $USER /tmp/$logname
-		rm /tmp/$logname
-	else
-		/usr/bin/ssh $args
-	fi
+    if [ -n "$host" ] ; then
+        /usr/bin/ssh $args | tee >(col -b > /tmp/$logname)
+        [ -s /tmp/$logname ] && gpg --output ~/.ssh/logs/$logname.asc -ear $USER /tmp/$logname
+        rm /tmp/$logname
+    else
+        /usr/bin/ssh $args
+    fi
 }
 
 alias profanity='env LC_ALL="en_US.UTF-8" profanity'
+
+## END OF FILE #################################################################
+# vim:filetype=zsh foldmethod=marker autoindent expandtab shiftwidth=4
+# Local variables:
+# mode: sh
+# End:
