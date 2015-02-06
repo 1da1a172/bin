@@ -19,7 +19,7 @@ grml_prompt_token_default+=( normal '[NORMAL]' )
 
 export BROWSER=dwb
 export PATH=$PATH:~/scripts
-export TERMINAL=/usr/bin/termite
+export TERMINAL=jp-terminal
 export VISUAL=/usr/bin/vim
 export KEYTIMEOUT=1
 
