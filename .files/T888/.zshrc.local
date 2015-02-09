@@ -6,6 +6,14 @@ bindkey -v
 #    zle reset-prompt
 #    zle-smkx
 #}
+#vim_ins_mode="%{$fg[white]%}%{$fg_bold[blue]$bg[white]%} INSERT %{$reset_color%}"
+#vim_cmd_mode="%{$fg[green]%}%{$fg_bold[black]$bg[green]%} COMMAND %{$reset_color%}"
+#vim_mode=$vim_ins_mode
+#function zle-line-init zle-keymap-select {
+#    RPS1="${${KEYMAP/vicmd/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
+#    RPS2=$RPS1
+#    zle reset-prompt
+#}
 #zle -N zle-line-init
 #zle -N zle-keymap-select
 
@@ -28,12 +36,12 @@ function ssh() {
     local -a args; args=($@)
     local i
 
-    for i in $args ; do #we only care about the hostname
-        $opt && { opt=false ; continue } # this element is an option; unflag for the next element and go on
-        [[ $i == \-* ]] && { opt=true ; continue } # this and the next element are options; flag it as so and go on
+    for i in $args ; do # get the hostname and move on
+        $opt && { opt=false ; continue }
+        [[ $i == \-* ]] && { opt=true ; continue }
         local host=$i
         local logname="`date +%Y%b%d-%T` $host.log"
-        break # we got the hostname and dont care about anything else
+        break
     done
 
     if [ -n "$host" ] ; then
@@ -44,8 +52,6 @@ function ssh() {
         /usr/bin/ssh $args
     fi
 }
-
-alias profanity='env LC_ALL="en_US.UTF-8" profanity'
 
 ## END OF FILE #################################################################
 # vim:filetype=zsh foldmethod=marker autoindent expandtab shiftwidth=4

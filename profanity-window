@@ -1,2 +1,0 @@
-#!/usr/bin/zsh
-i3-sensible-terminal -e "env LC_ALL=en_US.UTF-8 screen profanity"
