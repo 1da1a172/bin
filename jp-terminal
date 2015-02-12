@@ -1,6 +1,6 @@
 #/usr/bin/zsh
 
-/usr/bin/termite -e "screen $@"
+/usr/bin/st -e screen $@
 
 ## END OF FILE #################################################################
 # vim:filetype=zsh foldmethod=marker autoindent expandtab shiftwidth=4
