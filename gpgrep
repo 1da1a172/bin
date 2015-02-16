@@ -12,75 +12,75 @@ declare optR=false
 declare optDirSkip=false
 
 recurse_dirs() {
-	local integer i=1
+    local integer i=1
 
-	while [[ $i -le ${#file} ]] ; do # note that the $file array will have elements expanded if/as we recurse
-		if [[ "directory" == "`file -Lb $file[i]`" ]] && { $optR || ! [[ -L "$file[i]" ]] } ; then
-			file+=($file[i]/*)
-		fi # Could have 1-lined this, but it is messier than I prefer
-		(( i++ ))
-	done
+    while [[ $i -le ${#file} ]] ; do # note that the $file array will have elements expanded if/as we recurse
+        if [[ "directory" == "`file -Lb $file[i]`" ]] && { $optR || ! [[ -L "$file[i]" ]] } ; then
+            file+=($file[i]/*)
+        fi # Could have 1-lined this, but it is messier than I prefer
+        (( i++ ))
+    done
 }
 
 unlist_dirs() { # Would it be better to merge this with recurse_dirs() ?
-	$optR && local o="-Lb" || local o="-b"
-	local integer i=1
+    $optR && local o="-Lb" || local o="-b"
+    local integer i=1
 
-	while [[ $i -le ${#file} ]] ; do # note that the $file array will lose elements if/as we remove the directories
-		[[ "directory" == "`file $o $file[i]`" ]] && file[i]=() || (( i++ ))
-	done
+    while [[ $i -le ${#file} ]] ; do # note that the $file array will lose elements if/as we remove the directories
+        [[ "directory" == "`file $o $file[i]`" ]] && file[i]=() || (( i++ ))
+    done
 }
 
 filter_files() {
-	local integer i
-	for i in `seq ${#file}` ; do
-		[[ "`file -Lb $file[i]`" == PGP\ message* ]] && pgpfile+=( "$file[i]" ) || regfile+=( "$file[i]" )
-	done
+    local integer i
+    for i in `seq ${#file}` ; do
+        [[ "`file -Lb $file[i]`" == PGP\ message* ]] && pgpfile+=( "$file[i]" ) || regfile+=( "$file[i]" )
+    done
 }
 
 grep_pgp() {
-	local integer i
+    local integer i
 
-	if [[ 1 -ne ${#file} ]] ; then
-		for i in `seq ${#pgpfile}` ; do #TODO: add color!
-			gpg -qd --no-tty $pgpfile[i] | grep $opts $pattern | sed s%^%$file[i]:\ %
-		done
-	else
-		gpg -qd --no-tty $pgpfile[1] | grep $opts $pattern
-	fi
+    if [[ 1 -ne ${#file} ]] ; then
+        for i in `seq ${#pgpfile}` ; do
+            gpg -qd --no-tty $pgpfile[i] | grep $opts $pattern --label "[encrypted]$pgpfile[i]" -H
+        done
+    else
+        gpg -qd --no-tty $pgpfile[1] | grep $opts $pattern
+    fi
 }
 
 while :
 do
-	case "$1" in
-		-*)
-			if [[ "${1:1:1}" != "-" ]] ; then # is a short option
-				if [[ "$1" == *[rR]* ]] ; then #TODO: fix case where user supplies R and r in the same shortopt group
-				       	optr=true
-					[[ "$1" == *R* ]] && optR=true
-					[[ ${#1} -eq 2 ]] && { shift ; continue } || 1=${1/[rR]}
-					optDirSkip=false
-				fi
-				[[ "${1:-1}" == [$argnext] ]] && { opts+=( $1 ) ; shift } # last opt is expecting an argument next
-			elif [[ "$1" == --*recursive ]] ; then
-				optr=true
-				[[ "$1" == "--dereference-recursive" ]] && optR=true
-				# this option overrides previous options
-				optDirSkip=false
-			elif [[ "$1" == "--directories=skip" ]] ; then
-				optDirSkip=true
-				# this option overrides previous options
-				optr=false
-				optR=false
-			fi
-			opts+=( $1 )
-			;;
-		*)
-			[[ -z "$1" ]] && break
-			[[ -z $pattern ]] && pattern="$1" || file+="$1"
-			;;
-	esac
-	shift
+    case "$1" in
+        -*)
+            if [[ "${1:1:1}" != "-" ]] ; then # is a short option
+                if [[ "$1" == *[rR]* ]] ; then #TODO: fix case where user supplies R and r in the same shortopt group
+                           optr=true
+                    [[ "$1" == *R* ]] && optR=true
+                    [[ ${#1} -eq 2 ]] && { shift ; continue } || 1=${1/[rR]}
+                    optDirSkip=false
+                fi
+                [[ "${1:-1}" == [$argnext] ]] && { opts+=( $1 ) ; shift } # last opt is expecting an argument next
+            elif [[ "$1" == --*recursive ]] ; then
+                optr=true
+                [[ "$1" == "--dereference-recursive" ]] && optR=true
+                # this option overrides previous options
+                optDirSkip=false
+            elif [[ "$1" == "--directories=skip" ]] ; then
+                optDirSkip=true
+                # this option overrides previous options
+                optr=false
+                optR=false
+            fi
+            opts+=( $1 )
+            ;;
+        *)
+            [[ -z "$1" ]] && break
+            [[ -z $pattern ]] && pattern="$1" || file+="$1"
+            ;;
+    esac
+    shift
 done
 
 [[ ${#file} -ne 0 ]] && $optr && recurse_dirs
@@ -89,3 +89,10 @@ filter_files
 
 [[ 0 -ne ${#pgpfile} ]] && grep_pgp
 [[ 0 -ne ${#regfile} ]] && grep $opts $pattern $regfile || true
+
+## END OF FILE #################################################################
+# vim:filetype=zsh foldmethod=marker autoindent expandtab shiftwidth=4
+# Local variables:
+# mode: sh
+# End:
+#
