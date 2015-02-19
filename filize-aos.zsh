@@ -35,6 +35,8 @@ function write_unnamed_profile() {
     definition=$1
     file="$PREFIX"/$( echo "$definition" | sed 's: :/:g' ) # note that sed is deliminated with : not / for readability
 
+    mkdir -p $( dirname $file )
+
     sed -n "/^$definition/,/^!$/p" $CONFIG | sed 1d | sed '$d' | sed 's/^ *//' > $file
 }
 
@@ -70,9 +72,10 @@ for type in conn-capability op-cl operator-friendly-name wan-metrics
     write_profiles "wlan hotspot h2qp-$type-profile"
 
 ## aaa ###
-# TODO dns-query-interval log "password-policy mgmt" "radius-attributes add" "tacacs-accounting server-group" "user {fast-age,stats-poll}" "xml-api server"
+# TODO dns-query-interval log "radius-attributes add" "tacacs-accounting server-group" "user {fast-age,stats-poll}" "xml-api server"
 for type in alias-group bandwidth-contract profile rfc-3576-server server-group "derivation-rules user"
     write_profiles "aaa $type"
+write_unnamed_profile "aaa password-policy mgmt"
 for type in captive-portal dot1x mac mgmt stateful-{kerberos,ntlm} vpn wispr
     write_profiles "aaa authentication $type"
 for type in stateful-dot1x wired
@@ -80,6 +83,10 @@ for type in stateful-dot1x wired
 for type in ldap radius tacacs windows # TODO "internal use-local-switch"
     write_profiles "aaa authentication-server $type"
 write_option_group "aaa timers"
+
+## ap-group ##
+for type in ap-group ap-name
+    write_profiles $type
 
 ## END OF FILE #################################################################
 # vim:filetype=zsh foldmethod=marker autoindent expandtab shiftwidth=4 tabstop=4
