@@ -25,7 +25,7 @@ grml_prompt_pre_default+=( normal '%{%B%F{yellow}' )
 grml_prompt_post_default+=( normal '%f' )
 grml_prompt_token_default+=( normal '[NORMAL]' )
 
-export BROWSER=dwb
+export BROWSER=chromium
 export PATH=$PATH:~/scripts
 export TERMINAL=jp-terminal
 export VISUAL=/usr/bin/vim
