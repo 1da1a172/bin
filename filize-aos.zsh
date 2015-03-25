@@ -60,14 +60,15 @@ for type in conn-capability op-cl operator-friendly-name wan-metrics
     write_profiles "wlan hotspot h2qp-$type-profile"
 
 ## aaa ###
-# TODO dns-query-interval log "radius-attributes add" "tacacs-accounting server-group" "user {fast-age,stats-poll}" "xml-api server"
+# TODO dns-query-interval log "tacacs-accounting server-group" "xml-api server"
 for type in alias-group bandwidth-contract "derivation-rules user" "password-policy mgmt" profile rfc-3576-server server-group
     write_profiles "aaa $type"
 for type in captive-portal dot1x mac mgmt stateful-{kerberos,ntlm,dot1x} vpn wired wispr
     write_profiles "aaa authentication $type"
 for type in ldap radius tacacs windows # TODO "internal use-local-switch"
     write_profiles "aaa authentication-server $type"
-write_option_group "aaa timers"
+for type in timers user radius-attributes
+    write_option_group "aaa $type"
 
 ## ap-group ##
 for type in ap-group ap-name
@@ -75,7 +76,4 @@ for type in ap-group ap-name
 
 ## END OF FILE #################################################################
 # vim:filetype=zsh foldmethod=marker autoindent expandtab shiftwidth=4 tabstop=4
-# Local variables: i definition folder file defline PREFIX
-# mode: sh
-# End:
 #
