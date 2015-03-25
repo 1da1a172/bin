@@ -30,6 +30,7 @@ exec --no-startup-id numlockx on
 exec --no-startup-id conky -c ~/.config/conky/conky.conf
 exec --no-startup-id xautolock -time 5 -locker lock -notify 10 -notifier 'notify-send "Screen will lock in 10 seconds."'
 exec --no-startup-id dropbox
+exec --no-startup-id nuntius
 
 # Tweak the window/border decorations
 new_window pixel 2
