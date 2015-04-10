@@ -59,7 +59,7 @@ static const char *colorname[] = {
 	"#506070", /* blue */
 	"#dc8cc3", /* magenta */
 	"#8cd0d3", /* cyan */
-	"#dcdccc", /* very light grey */
+	"#dcdcdc", /* very light grey */
 
 	/* 8 bright colors */
 	"#709080", /* medium grey */
