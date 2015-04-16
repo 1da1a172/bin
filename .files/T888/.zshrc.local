@@ -30,8 +30,6 @@ export PATH=$PATH:~/scripts
 export TERMINAL=jp-terminal
 export VISUAL=/usr/bin/vim
 export KEYTIMEOUT=1
-alias fix-kworker='echo disable | sudo tee /sys/firmware/acpi/interrupts/gpe66'
-
 
 function ssh() {
     local opt=false
