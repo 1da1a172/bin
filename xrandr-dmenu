@@ -1,0 +1,198 @@
+#!/usr/bin/zsh
+#
+# Setup outputs with xrandr as a backend and dmenu as a frontend
+#
+# Dependancies: dmenu, sed, zsh
+
+# r/o globals (set in init_global_vars)
+declare XRANDR_READ_IN
+declare -a CONNECTED_OUTPUT
+
+# r/w globals
+declare -A OUTPUT_CONFIGURED # key=output name
+
+function main() {
+  local primary #boolean for if we have set the primary output yet
+  local output
+  local mode
+  local position
+  local failsafe
+  local xrandr_opts
+
+  init_global_vars
+  failsafe=0
+  primary=false
+
+  while [[ $(unconfigured_outputs) -ne 0 && $failsafe -lt 10 ]]; do
+    if ${primary} ; then
+      select_output 'Select next output:' 'unconfigured' | read output
+      select_mode "${output}" | read mode
+      select_position "${output}" | read position
+      OUTPUT_CONFIGURED[${output}]=true
+      xrandr_opts+=" --output ${output} ${position} ${mode}"
+    else
+      select_output 'Select primary output:' 'all' | read output
+      select_mode "${output}" | read mode
+      OUTPUT_CONFIGURED[${output}]=true
+      primary=true
+      xrandr_opts+=" --output ${output} --primary ${mode}"
+    fi
+    (( failsafe++ ))
+  done
+
+  xrandr ${=xrandr_opts}
+}
+
+################################################################################
+# Uses dmenu to select an output. Skips menu if only 1 option is available.
+# Prints the name of the output to stdout.
+# Globals:
+#  CONNECTED_OUTPUT
+#  OUTPUT_CONFIGURED
+# Arguments:
+#  $1=prompt
+#  $2=group of outputs. valid options are configured, unconfigured, all
+# Returns:
+#  1=no options available
+#  2=invalid $2
+################################################################################
+function select_output() {
+  local -a output_list
+  
+  if [[ "$2" == 'configured' ]]; then
+    local out
+    for out in ${(k)OUTPUT_CONFIGURED}; do
+      ${OUTPUT_CONFIGURED[$out]} && output_list+=("$out")
+    done
+  elif [[ "$2" == 'unconfigured' ]]; then
+    local out
+    for out in ${(k)OUTPUT_CONFIGURED}; do
+      ${OUTPUT_CONFIGURED[$out]} || output_list+=("$out")
+    done
+  elif [[ "$2" == 'all' ]]; then
+    output_list=(${(k)OUTPUT_CONFIGURED})
+  else
+    return 2
+  fi
+
+  if [[ ${#output_list} -eq 0 ]]; then
+    return 1
+  elif [[ ${#output_list} -eq 1 ]]; then
+    echo "${output_list}"
+  else
+    print -l ${output_list} | dmenu -l 10 -p "$1"
+  fi
+}
+################################################################################
+# Uses dmenu to select the position of a given output relative to an already
+# configured output. Mirroring another output is considered a position.
+# Prints to stdout in the form of xrandr option (eg, '--right-of DP1')
+# Globals:
+#  OUTPUT_CONFIGURED
+# Arguments:
+#  $1=name of output to configure
+# Returns:
+#  1=no configured outputs to relate to
+#  2=$1 not given
+#  3=bad input
+################################################################################
+function select_position() {
+  local anchor  
+  local position
+
+  select_output "Set $1 relative to:" 'configured' | read anchor
+
+  echo "left of $anchor
+right of $anchor
+above $anchor
+below $anchor
+mirror $anchor" | dmenu -l 10 -p "Select position of $1:" | read position
+
+  case "${position[(w)1]}" in
+    left) echo "--left-of ${anchor}" ;;
+    right) echo "--right-of ${anchor}" ;;
+    above) echo "--above ${anchor}" ;;
+    below) echo "--below ${anchor}" ;;
+    mirror) echo "--same-as ${anchor}" ;;
+    *)
+      echo 'Unexpected input' >&2
+      return 3
+      ;;
+  esac
+}
+
+################################################################################
+# Uses dmenu to display the detected mode options for a given output and lets
+# the user select a mode to use. Prints in xrandr option format
+# (eg, '--mode 800x600' or '--auto')
+# Globals:
+#  XRANDR_READ_IN
+#  CONNECTED_OUTPUT
+# Arguments:
+#  $1 - name of which output we are working with
+# Returns:
+#  1=given output not found/connected (TODO)
+#  2=$1 not given
+#  3=Unexpected input
+################################################################################
+function select_mode() {
+  local mode
+  # TODO: make this not ugly. A better sed should negate the need for cut/grep
+  # Should probably parse (sed) seperately then assign to the array. Or not
+  # use an array at all.
+  echo "${XRANDR_READ_IN}" \
+    | sed -n '/^'$1' /,/^[^ ]/ s/ * / /gp' \
+    | cut -d ' ' -f 2 \
+    | grep x \
+    | cat <(echo auto) - \
+    | dmenu -l 10 -p "Select mode for $1:" | read mode
+
+  if [[ "${mode}" == "auto" ]]; then
+    echo '--auto'
+  elif [[ "${mode}" == *x* ]]; then
+    echo "--mode ${mode}"
+  else
+    echo 'Unexpected input' >&2
+    return 3
+  fi
+}
+
+################################################################################
+# prints the number of unconfigured outputs to stdout
+# Globals:
+#  OUTPUT_CONFIGURED
+# Arguments:
+#  none
+# Returns:
+#  1 - arrays OUTPUT_CONFIGURED and CONNECTED_OUTPUT are different sizes.
+################################################################################
+function unconfigured_outputs() {
+  local out
+  local integer count=0
+
+  [[ ${#OUTPUT_CONFIGURED} != ${#CONNECTED_OUTPUT} ]] && return 1
+  
+  for out in ${OUTPUT_CONFIGURED}; do
+    $out || (( count++ ))
+  done
+  echo ${count}
+}
+
+function init_global_vars() {
+  local out
+
+  #TODO: make XRANDR_READ_IN and CONNECTED_OUTPUT readonly globals
+  XRANDR_READ_IN="$(xrandr)"
+  CONNECTED_OUTPUT=($(grep ' connec' <<< "${XRANDR_READ_IN}" | cut -d ' ' -f 1))
+
+  for out in ${CONNECTED_OUTPUT}; do
+    OUTPUT_CONFIGURED[${out}]=false
+  done
+}
+
+main
+
+## END OF FILE #################################################################
+# vim filetype=zsh autoindent expanddtab shiftwidth=2 tabstop=2
+# End
+#
