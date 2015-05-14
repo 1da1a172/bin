@@ -13,7 +13,6 @@ declare -A OUTPUT_CONFIGURED # key=output name
 declare PRIMARY #boolean for if we have set the primary output yet
 
 function main() {
-  setopt xtrace
   local output
   local mode
   local position
@@ -42,7 +41,6 @@ function main() {
   done
 
   ${=xrandr_cmd}
-  unsetopt xtrace
 }
 
 ################################################################################
