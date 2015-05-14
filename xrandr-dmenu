@@ -2,7 +2,7 @@
 #
 # Setup outputs with xrandr as a backend and dmenu as a frontend
 #
-# Dependancies: dmenu, sed, zsh
+# Dependancies: dmenu, sed, xrandr, zsh
 
 # r/o globals (set in init_global_vars)
 declare XRANDR_READ_IN
@@ -10,37 +10,39 @@ declare -a CONNECTED_OUTPUT
 
 # r/w globals
 declare -A OUTPUT_CONFIGURED # key=output name
+declare PRIMARY #boolean for if we have set the primary output yet
 
 function main() {
-  local primary #boolean for if we have set the primary output yet
+  setopt xtrace
   local output
   local mode
   local position
   local failsafe
-  local xrandr_opts
+  local xrandr_cmd
 
   init_global_vars
   failsafe=0
-  primary=false
+  xrandr_cmd='xrandr'
 
   while [[ $(unconfigured_outputs) -ne 0 && $failsafe -lt 10 ]]; do
-    if ${primary} ; then
+    if ${PRIMARY} ; then
       select_output 'Select next output:' 'unconfigured' | read output
       select_mode "${output}" | read mode
-      select_position "${output}" | read position
+      [[ "${mode}" != '--off' ]] && select_position "${output}" | read position
       OUTPUT_CONFIGURED[${output}]=true
-      xrandr_opts+=" --output ${output} ${position} ${mode}"
+      xrandr_cmd+=" --output ${output} ${position} ${mode}"
     else
       select_output 'Select primary output:' 'all' | read output
       select_mode "${output}" | read mode
       OUTPUT_CONFIGURED[${output}]=true
-      primary=true
-      xrandr_opts+=" --output ${output} --primary ${mode}"
+      PRIMARY=true
+      xrandr_cmd+=" --output ${output} --primary ${mode}"
     fi
     (( failsafe++ ))
   done
 
-  xrandr ${=xrandr_opts}
+  ${=xrandr_cmd}
+  unsetopt xtrace
 }
 
 ################################################################################
@@ -137,18 +139,24 @@ mirror $anchor" | dmenu -l 10 -p "Select position of $1:" | read position
 ################################################################################
 function select_mode() {
   local mode
+  local menu
   # TODO: make this not ugly. A better sed should negate the need for cut/grep
   # Should probably parse (sed) seperately then assign to the array. Or not
   # use an array at all.
-  echo "${XRANDR_READ_IN}" \
+  menu=$(echo "${XRANDR_READ_IN}" \
     | sed -n '/^'$1' /,/^[^ ]/ s/ * / /gp' \
     | cut -d ' ' -f 2 \
     | grep x \
-    | cat <(echo auto) - \
-    | dmenu -l 10 -p "Select mode for $1:" | read mode
+    | cat <(echo auto) -)
+
+  ${PRIMARY} && menu+="\noff"
+    
+  echo "${menu}" | dmenu -l 10 -p "Select mode for $1:" | read mode
 
   if [[ "${mode}" == "auto" ]]; then
     echo '--auto'
+  elif [[ "${mode}" == 'off' ]]; then
+    echo '--off'
   elif [[ "${mode}" == *x* ]]; then
     echo "--mode ${mode}"
   else
@@ -184,6 +192,7 @@ function init_global_vars() {
   #TODO: make XRANDR_READ_IN and CONNECTED_OUTPUT readonly globals
   XRANDR_READ_IN="$(xrandr)"
   CONNECTED_OUTPUT=($(grep ' connec' <<< "${XRANDR_READ_IN}" | cut -d ' ' -f 1))
+  PRIMARY=false
 
   for out in ${CONNECTED_OUTPUT}; do
     OUTPUT_CONFIGURED[${out}]=false
