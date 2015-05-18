@@ -1,6 +1,7 @@
 syntax on
+set relativenumber
 set expandtab
-set tabstop=4
+set tabstop=2
 set nowrap
 set encoding=utf-8
 set fileencoding=utf-8
