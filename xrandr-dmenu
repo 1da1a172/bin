@@ -6,26 +6,26 @@
 # Released under GPLv2
 
 typeset XRANDR_TXT # readonly; stdout of running xrandr without any options
-typeset XRANDR_CMD # the actual xrandr command we will run at the end
 typeset -A OUTPUT_CONFIGURED # key=connected output name
 
 function main() {
-  local iteration
+  local -i iteration
   local max_iteration
   local output
   local mode
   local position
+  local xrandr_cmd
 
   environment_check
 
-  iteration=0
   max_iteration=${(w)#OUTPUT_CONFIGURED}
+  xrandr_cmd='xrandr'
 
   while ! all_outputs_configured && (( $iteration <= $max_iteration )); do
-    if primary_set ; then
+    if (( iteration++ )); then
       select_output 'Select next output:' 'unconfigured' | read output
-      select_mode "${output}" | read mode
-      [[ "${mode}" != '--off' ]] && select_position "${output}" | read position
+      select_position "${output}" | read position
+      [[ "${position}" != '--off' ]] && select_mode "${output}" | read mode
       OUTPUT_CONFIGURED[${output}]='true'
     else
       select_output 'Select primary output:' 'all' | read output
@@ -33,11 +33,10 @@ function main() {
       OUTPUT_CONFIGURED[${output}]='true'
       position='--primary'
     fi
-    XRANDR_CMD+=" --output ${output} ${position} ${mode}"
-    (( iteration++ ))
+    xrandr_cmd+=" --output ${output} ${position} ${mode}"
   done
 
-  ${=XRANDR_CMD}
+  ${=xrandr_cmd}
 }
 
 ################################################################################
@@ -84,7 +83,7 @@ function select_output() {
 
 ################################################################################
 # Uses dmenu to select the position of a given output relative to an already
-# configured output. Mirroring another output is considered a position.
+# configured output. --same-as and --off are considered a position.
 # Prints in the form of xrandr option (eg, '--right-of DP1') to stdout
 # Global variables:
 #  OUTPUT_CONFIGURED
@@ -111,7 +110,8 @@ function select_position() {
 right of ${anchor}
 above ${anchor}
 below ${anchor}
-mirror ${anchor}" | dmenu -l 10 -p "Select selection of $1:" | read selection
+mirror ${anchor}
+off" | dmenu -l 10 -p "Select selection of $1:" | read selection
 
   case "${selection[(w)1]}" in
     left) echo "--left-of ${anchor}" ;;
@@ -119,6 +119,7 @@ mirror ${anchor}" | dmenu -l 10 -p "Select selection of $1:" | read selection
     above) echo "--above ${anchor}" ;;
     below) echo "--below ${anchor}" ;;
     mirror) echo "--same-as ${anchor}" ;;
+    off) echo "--off" ;;
     *) return "${err_bad_selection}" ;;
   esac
 }
@@ -153,20 +154,14 @@ function select_mode() {
     | cut -d ' ' -f 1 \
     | grep x \
     | cat <(echo auto) -)"
-  primary_set && menu+="\noff"
 
   echo "${menu}" | dmenu -l 10 -p "Select mode for $1:" | read selection
 
   case "${selection}" in
     'auto') echo '--auto' ;;
-    'off') echo '--off' ;;
     *x*) echo "--mode ${selection}" ;;
     *) return "${err_bad_selection}" ;;
   esac
-}
-
-function primary_set() {
-  [[ "${XRANDR_CMD}" == *'--primary'* ]]
 }
 
 ################################################################################
@@ -215,7 +210,6 @@ function initialize_globals() {
   for output in $(grep ' connected' <<< "${XRANDR_TXT}" | cut -d ' ' -f 1); do
     OUTPUT_CONFIGURED[${output}]='false'
   done
-  XRANDR_CMD='xrandr'
 }
 
 initialize_globals
