@@ -111,7 +111,7 @@ right of ${anchor}
 above ${anchor}
 below ${anchor}
 mirror ${anchor}
-off" | dmenu -l 10 -p "Select selection of $1:" | read selection
+off" | dmenu -l 10 -p "Select position of $1:" | read selection
 
   case "${selection[(w)1]}" in
     left) echo "--left-of ${anchor}" ;;
