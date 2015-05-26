@@ -7,36 +7,74 @@
 
 typeset XRANDR_TXT # readonly; stdout of running xrandr without any options
 typeset -A OUTPUT_CONFIGURED # key=connected output name
+typeset OPT_MODE
+typeset OPT_ROTATION
 
 function main() {
   local -i iteration
   local max_iteration
   local output
   local mode
+  local rotation
   local position
   local xrandr_cmd
 
   environment_check
 
-  max_iteration=${(w)#OUTPUT_CONFIGURED}
+  iteration=0
+  max_iteration=$[ ${(w)#OUTPUT_CONFIGURED} - 1 ]
   xrandr_cmd='xrandr'
 
+  while [[ "$1" ]]; do
+    case "$1" in
+      -m) OPT_MODE='change' ;;
+      -M) OPT_MODE='no_change' ;;
+      -r) OPT_ROTATION='change' ;;
+      -R) OPT_ROTATION='no_change' ;;
+      --help)
+        show_help
+        exit 0
+        ;;
+      *)
+        show_help
+        exit 1
+        ;;
+    esac
+    shift
+  done
+
+  select_output 'Select primary output:' 'all' | read output
+  select_mode "${output}" | read mode
+  select_rotation "${output}" | read rotation
+  OUTPUT_CONFIGURED[${output}]='true'
+  position='--primary'
+  xrandr_cmd+=" --output ${output} ${position} ${rotation} ${mode}"
   while ! all_outputs_configured && (( $iteration <= $max_iteration )); do
-    if (( iteration++ )); then
-      select_output 'Select next output:' 'unconfigured' | read output
-      select_position "${output}" | read position
-      [[ "${position}" != '--off' ]] && select_mode "${output}" | read mode
-      OUTPUT_CONFIGURED[${output}]='true'
-    else
-      select_output 'Select primary output:' 'all' | read output
+    select_output 'Select next output:' 'unconfigured' | read output
+    select_position "${output}" | read position
+    if [[ "${position}" != '--off' ]]; then
       select_mode "${output}" | read mode
-      OUTPUT_CONFIGURED[${output}]='true'
-      position='--primary'
+      select_rotation "${output}" | read rotation
     fi
-    xrandr_cmd+=" --output ${output} ${position} ${mode}"
+    OUTPUT_CONFIGURED[${output}]='true'
+    xrandr_cmd+=" --output ${output} ${position} ${rotation} ${mode}"
+    (( iteration++ ))
   done
 
   ${=xrandr_cmd}
+}
+
+function show_help() {
+  << EOL
+usage: xrandr-dmenu [options]
+Setup X outputs position, mode, etc
+
+Options:
+  -m  Select mode for outputs
+  -M  Use current mode for outputs
+  -r  Select rotation for outputs
+  -R  Use current rotation for outputs
+EOL
 }
 
 ################################################################################
@@ -130,8 +168,7 @@ off" | dmenu -l 10 -p "Select position of $1:" | read selection
 # (eg, '--mode 800x600' or '--auto') to stdout
 # Global variables:
 #  XRANDR_TXT
-#  CONNECTED_OUTPUT
-#  XRANDR_CMD (via primary_set())
+#  OPT_MODE
 # Arguments:
 #  $1 - name of which output we are working with
 # Returns:
@@ -144,24 +181,60 @@ function select_mode() {
   local -ir err_bad_args=257
   local -ir err_bad_selection=258
 
-  if [[ -z $1 ]] && return "${err_bad_args}"
+  [[ -z $1 ]] && return "${err_bad_args}"
 
-  # TODO: make this not ugly. A better sed should negate the need for cut/grep
-  # Should probably parse (sed) seperately then assign to the array. Or not
-  # use an array at all.
-  menu="$(echo \"${XRANDR_TXT}\" \
-    | sed -n '/^'$1' /,/^[^ ]/ s/ * //p' \
-    | cut -d ' ' -f 1 \
-    | grep x \
-    | cat <(echo auto) -)"
+  if [[ "${OPT_MODE}" == 'auto' ]]; then
+    echo '--auto'
+  elif [[ "${OPT_MODE}" == 'no_change' ]]; then
+    echo ''
+  else
+    # TODO: make this not ugly. A better sed should negate the need for cut/grep
+    # Should probably parse (sed) seperately then assign to the array. Or not
+    # use an array at all.
+    menu="$(echo \"${XRANDR_TXT}\" \
+      | sed -n '/^'$1' /,/^[^ ]/ s/ * //p' \
+      | cut -d ' ' -f 1 \
+      | grep x \
+      | cat <(echo auto) -)"
 
-  echo "${menu}" | dmenu -l 10 -p "Select mode for $1:" | read selection
+    echo "${menu}" | dmenu -l 10 -p "Select mode for $1:" | read selection
 
-  case "${selection}" in
-    'auto') echo '--auto' ;;
-    *x*) echo "--mode ${selection}" ;;
-    *) return "${err_bad_selection}" ;;
-  esac
+    case "${selection}" in
+      'auto') echo '--auto' ;;
+      *x*) echo "--mode ${selection}" ;;
+      *) return "${err_bad_selection}" ;;
+    esac
+  fi
+}
+
+################################################################################
+# Uses dmenu to select the rotation of a given output. Prints the selection in
+# xrandr option format (eg '--rotate inverted') to stdout
+# Global variables:
+#  OPT_ROTATION
+# Arguments:
+#  $1 - name of which output we are working with
+# Returns:
+#  257=bad arguements; given output ($1) not found/connected (TODO)
+#  258=bad selection (TODO)
+################################################################################
+function select_rotation() {
+  local selection
+  local -ir err_bad_args=275
+  local -ir err_bad_selection=258
+
+  [[ -z $1 ]] && return "${err_bad_args}"
+
+  if [[ "${OPT_ROTATION}" == 'normal' ]]; then
+    echo '--rotate normal'
+  elif [[ "${OPT_ROTATION}" == 'no_change' ]]; then
+    echo ''
+  else
+    echo "normal\ninverted\nleft\nright" \
+      | dmenu -l 10 -p "Select rotation of $1:" \
+      | read selection
+    echo "--rotate ${selection}"
+  fi
 }
 
 ################################################################################
@@ -206,6 +279,8 @@ function environment_check() {
 function initialize_globals() {
   local output
 
+  OPT_MODE='auto'
+  OPT_ROTATION='normal'
   XRANDR_TXT="$(xrandr)"
   for output in $(grep ' connected' <<< "${XRANDR_TXT}" | cut -d ' ' -f 1); do
     OUTPUT_CONFIGURED[${output}]='false'
@@ -214,7 +289,7 @@ function initialize_globals() {
 
 initialize_globals
 readonly XRANDR_TXT
-main
+main $@
 
 ################################################################################
 # vim filetype=zsh autoindent expandtab shiftwidth=2 tabstop=2
