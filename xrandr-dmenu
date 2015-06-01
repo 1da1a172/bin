@@ -63,7 +63,6 @@ function () {
 }
 
 function main() {
-  setopt xtrace
   typeset prompt
   typeset menu
   typeset output
@@ -104,7 +103,6 @@ function main() {
     echo "Failed to execute xrandr command:\n${xrandr_cmd}"
     bail 255
   fi
-  unsetopt xtrace
 }
 
 function show_help() {
@@ -194,7 +192,7 @@ function select_mode() {
       | grep x \
       | cat <(echo auto) -)"
 
-    selection="$(menu_select "${prompt}" ${=menu})" || bail $?
+    selection="$(menu_select "${prompt}" ${=menu})" || return $?
 
     if [[ 'auto' == "${selection}" ]]; then
       echo '--auto'
@@ -229,7 +227,7 @@ function select_rotation() {
     echo ''
   else
     echo -n "--rotate ${selection}"
-    menu_select "${prompt}" ${menu} || bail $?
+    menu_select "${prompt}" ${menu} || return $?
   fi
 }
 
