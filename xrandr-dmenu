@@ -252,10 +252,10 @@ function menu_select() {
   typeset item
   typeset prompt
   typeset -a menu
-  prompt="$1"
 
+  prompt="$1"
   shift
-  for item ($*) menu+=("${item}")
+  menu=($*)
 
   if [[ ${#menu} == 1 ]]; then
     echo "${menu}"
