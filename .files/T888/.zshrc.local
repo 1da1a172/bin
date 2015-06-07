@@ -1,18 +1,18 @@
 source /usr/share/doc/pkgfile/command-not-found.zsh
 bindkey -v
 #function zle-line-init zle-keymap-select {
-#    VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
-#    RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/} $EPS1"
-#    zle reset-prompt
-#    zle-smkx
+#  VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
+#  RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/} $EPS1"
+#  zle reset-prompt
+#  zle-smkx
 #}
 #vim_ins_mode="%{$fg[white]%}%{$fg_bold[blue]$bg[white]%} INSERT %{$reset_color%}"
 #vim_cmd_mode="%{$fg[green]%}%{$fg_bold[black]$bg[green]%} COMMAND %{$reset_color%}"
 #vim_mode=$vim_ins_mode
 #function zle-line-init zle-keymap-select {
-#    RPS1="${${KEYMAP/vicmd/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
-#    RPS2=$RPS1
-#    zle reset-prompt
+#  RPS1="${${KEYMAP/vicmd/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
+#  RPS2=$RPS1
+#  zle reset-prompt
 #}
 #zle -N zle-line-init
 #zle -N zle-keymap-select
@@ -32,29 +32,40 @@ export VISUAL=/usr/bin/vim
 export KEYTIMEOUT=1
 
 function ssh() {
-    local opt=false
-    local -a args; args=($@)
-    local i
+  typeset opt=false
+  typeset -a args
+  typeset i
+  typeset host
+  typeset logname
+  args=($@)
 
-    for i in $args ; do # get the hostname and move on
-        $opt && { opt=false ; continue }
-        [[ $i == \-* ]] && { opt=true ; continue }
-        local host=$i
-        local logname="`date +%Y%b%d-%T` $host.log"
-        break
-    done
-
-    if [ -n "$host" ] ; then
-        /usr/bin/ssh $args | tee >(col -b > /tmp/$logname)
-        [ -s /tmp/$logname ] && gpg --output ~/.ssh/logs/$logname.asc -ear $USER /tmp/$logname
-        rm /tmp/$logname
+  for i in ${args}; do # get the hostname and move on
+    if ${opt}; then
+      opt=false
+      continue
+    elif [[ $i == \-* ]]; then
+      opt=true
+      continue
     else
-        /usr/bin/ssh $args
+      host=$i
+      logname="$(date +%Y%b%d-%T) $host.log"
+      break
     fi
+  done
+
+  if [[ -n "$host" ]] ; then
+    /usr/bin/ssh $args | tee >(col -b > /tmp/$logname)
+    if [[ -s /tmp/$logname ]]; then
+      gpg --output ~/.ssh/logs/$logname.asc -ear $USER /tmp/$logname
+    fi
+    rm /tmp/$logname
+  else
+    /usr/bin/ssh $args
+  fi
 }
 
 ## END OF FILE #################################################################
-# vim:filetype=zsh foldmethod=marker autoindent expandtab shiftwidth=4
+# vim:filetype=zsh foldmethod=marker autoindent expandtab shiftwidth=2
 # Local variables:
 # mode: sh
 # End:
