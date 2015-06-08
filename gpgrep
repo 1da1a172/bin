@@ -1,86 +1,108 @@
 #!/usr/bin/zsh
+#
+# gpgrep -- a wrapper around a grep program that decrypts files as needed
+#
+# external commands: grep, gpg, file
+# Released under GPLv2
 
-declare argnext=efmbdDBAC # short opts w/ arg
+
+typeset -r argnext=efmbdDBAC # short opts w/ arg
 # TODO: source default options from ~/.zshrc.local
-declare -a opts ; opts=( "--color=auto" ) # options to pass to grep
-declare pattern
-declare -a file # all files pass handle
-declare -a regfile # unencrypted files
-declare -a pgpfile # encrypted files
-declare optr=false # recursive grep options (named after the shortopt)
-declare optR=false
-declare optDirSkip=false
+typeset -a opts ; opts=( "--color=auto" ) # options to pass to grep
+typeset pattern
+typeset -a file # all files pass handle
+typeset -a regfile # unencrypted files
+typeset -a pgpfile # encrypted files
+typeset optr=false # recursive directories
+typeset optR=false # recursive directories and follow symlinks
+typeset optDirSkip=false
 
-recurse_dirs() {
-    local integer i=1
+################################################################################
+# Expands $file to included files in directories.
+# globals:
+#  file
+#  optR
+################################################################################
+function recurse_dirs() {
+  typeset -i index
+  index=1
 
-    while [[ $i -le ${#file} ]] ; do # note that the $file array will have elements expanded if/as we recurse
-        if [[ "directory" == "`file -Lb $file[i]`" ]] && { $optR || ! [[ -L "$file[i]" ]] } ; then
-            file+=($file[i]/*)
-        fi # Could have 1-lined this, but it is messier than I prefer
-        (( i++ ))
-    done
-}
-
-unlist_dirs() { # Would it be better to merge this with recurse_dirs() ?
-    $optR && local o="-Lb" || local o="-b"
-    local integer i=1
-
-    while [[ $i -le ${#file} ]] ; do # note that the $file array will lose elements if/as we remove the directories
-        [[ "directory" == "`file $o $file[i]`" ]] && file[i]=() || (( i++ ))
-    done
-}
-
-filter_files() {
-    local integer i
-    for i in `seq ${#file}` ; do
-        [[ "`file -Lb $file[i]`" == PGP\ message* ]] && pgpfile+=( "$file[i]" ) || regfile+=( "$file[i]" )
-    done
-}
-
-grep_pgp() {
-    local integer i
-
-    if [[ 1 -ne ${#file} ]] ; then
-        for i in `seq ${#pgpfile}` ; do
-            gpg -qd --no-tty $pgpfile[i] | grep $opts $pattern --label "[encrypted]$pgpfile[i]" -H
-        done
-    else
-        gpg -qd --no-tty $pgpfile[1] | grep $opts $pattern
+  while [[ ${index} -le ${#file} ]]; do
+    if [[ -d "${file[${index}]}" ]]; then
+      ${optR} || ! [[ -L "${file[${index}]}" ]] && file+=(${file[${index}]}/*)
     fi
+    (( index++ ))
+  done
+}
+
+function unlist_dirs() { # Would it be better to merge this with recurse_dirs() ?
+  typeset -i index
+  index=1
+
+  while [[ ${index} -le ${#file} ]]; do
+    [[ -d "${file[${index}]}" ]] && file[${index}]=() || (( index++ ))
+  done
+}
+
+function filter_files() {
+  typeset -i index
+  for index in {1..${#file}}; do
+    if [[ "$(file -Lb ${file[${index}]})" == 'PGP message'* ]]; then
+      pgpfile+=( "${file[${index}]}" )
+    else
+      regfile+=( "${file[${index}]}" )
+    fi
+  done
+}
+
+function grep_pgp() {
+  typeset -i index
+
+  if [[ 1 -ne ${#file} ]] ; then
+    for index in {1..${#pgpfile}}; do
+      gpg -qd --no-tty "${pgpfile[${index}]}" \
+        | grep $opts "$pattern" --label "[encrypted]${pgpfile[${index}]}" -H
+    done
+  else
+    gpg -qd --no-tty "${pgpfile[1]}" | grep $opts "$pattern"
+  fi
 }
 
 while :
 do
-    case "$1" in
-        -*)
-            if [[ "${1:1:1}" != "-" ]] ; then # is a short option
-                if [[ "$1" == *[rR]* ]] ; then #TODO: fix case where user supplies R and r in the same shortopt group
-                           optr=true
-                    [[ "$1" == *R* ]] && optR=true
-                    [[ ${#1} -eq 2 ]] && { shift ; continue } || 1=${1/[rR]}
-                    optDirSkip=false
-                fi
-                [[ "${1:-1}" == [$argnext] ]] && { opts+=( $1 ) ; shift } # last opt is expecting an argument next
-            elif [[ "$1" == --*recursive ]] ; then
-                optr=true
-                [[ "$1" == "--dereference-recursive" ]] && optR=true
-                # this option overrides previous options
-                optDirSkip=false
-            elif [[ "$1" == "--directories=skip" ]] ; then
-                optDirSkip=true
-                # this option overrides previous options
-                optr=false
-                optR=false
-            fi
-            opts+=( $1 )
-            ;;
-        *)
-            [[ -z "$1" ]] && break
-            [[ -z $pattern ]] && pattern="$1" || file+="$1"
-            ;;
-    esac
-    shift
+  case "$1" in
+    (-*)
+      if [[ "${1:1:1}" != "-" ]] ; then # is a short option
+        if [[ "$1" == *[rR]* ]] ; then #TODO: fix case where user supplies R and r in the same shortopt group
+          optr=true
+          [[ "$1" == *R* ]] && optR=true
+          if [[ ${#1} -eq 2 ]]; then
+            shift
+            continue
+          else
+            1=${1/[rR]}
+          fi
+          optDirSkip=false
+        fi
+        if [[ "${1:-1}" == [$argnext] ]]; then # last opt is expecting an argument next
+          opts+=( $1 )
+          shift
+        fi
+      elif [[ "$1" == --*recursive ]] ; then
+        optr=true
+        [[ "$1" == "--dereference-recursive" ]] && optR=true
+        optDirSkip=false
+      elif [[ "$1" == "--directories=skip" ]] ; then
+        optDirSkip=true
+        optr=false
+        optR=false
+      fi
+      opts+=( $1 )
+      ;;
+    ('') break ;;
+    (*) [[ -z $pattern ]] && pattern="$1" || file+="$1" ;;
+  esac
+  shift
 done
 
 [[ ${#file} -ne 0 ]] && $optr && recurse_dirs
@@ -91,8 +113,5 @@ filter_files
 [[ 0 -ne ${#regfile} ]] && grep $opts $pattern $regfile || true
 
 ## END OF FILE #################################################################
-# vim:filetype=zsh foldmethod=marker autoindent expandtab shiftwidth=4
-# Local variables:
-# mode: sh
-# End:
+# vim:filetype=zsh autoindent expandtab softtabstop=2 shiftwidth=2 nowrap
 #
