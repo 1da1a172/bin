@@ -1,29 +1,8 @@
 source /usr/share/doc/pkgfile/command-not-found.zsh
 bindkey -v
-#function zle-line-init zle-keymap-select {
-#  VIM_PROMPT="%{$fg_bold[yellow]%} [% NORMAL]% %{$reset_color%}"
-#  RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/} $EPS1"
-#  zle reset-prompt
-#  zle-smkx
-#}
-#vim_ins_mode="%{$fg[white]%}%{$fg_bold[blue]$bg[white]%} INSERT %{$reset_color%}"
-#vim_cmd_mode="%{$fg[green]%}%{$fg_bold[black]$bg[green]%} COMMAND %{$reset_color%}"
-#vim_mode=$vim_ins_mode
-#function zle-line-init zle-keymap-select {
-#  RPS1="${${KEYMAP/vicmd/${vim_cmd_mode}}/(main|viins)/${vim_ins_mode}}"
-#  RPS2=$RPS1
-#  zle reset-prompt
-#}
-#zle -N zle-line-init
-#zle -N zle-keymap-select
 
 # It is standard to use '$' for a non-root user. Not '%'. C'mon grml...
 grml_prompt_token_default[percent]='$ '
-
-# Add style option for indicating we are in vim normal mode
-grml_prompt_pre_default+=( normal '%{%B%F{yellow}' )
-grml_prompt_post_default+=( normal '%f' )
-grml_prompt_token_default+=( normal '[NORMAL]' )
 
 export BROWSER=chromium
 export PATH=$PATH:~/scripts
@@ -34,20 +13,20 @@ export KEYTIMEOUT=1
 function ssh() {
   typeset opt=false
   typeset -a args
-  typeset i
+  typeset arg
   typeset host
   typeset logname
   args=($@)
 
-  for i in ${args}; do # get the hostname and move on
+  for arg in ${args}; do # get the hostname and move on
     if ${opt}; then
       opt=false
       continue
-    elif [[ $i == \-* ]]; then
+    elif [[ ${arg} == '-'* ]]; then
       opt=true
       continue
     else
-      host=$i
+      host=${arg}
       logname="$(date +%Y%b%d-%T) $host.log"
       break
     fi
@@ -66,6 +45,4 @@ function ssh() {
 
 ## END OF FILE #################################################################
 # vim:filetype=zsh foldmethod=marker autoindent expandtab shiftwidth=2
-# Local variables:
-# mode: sh
-# End:
+#
