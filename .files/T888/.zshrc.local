@@ -11,35 +11,30 @@ export VISUAL=/usr/bin/vim
 export KEYTIMEOUT=1
 
 function ssh() {
-  typeset opt=false
+  typeset -r ssh_cmd==ssh
+  typeset arg=1
+  typeset logtmp
+  typeset logfile
+  typeset -r logdir="${HOME}/.ssh/logs"
   typeset -a args
-  typeset arg
-  typeset host
-  typeset logname
-  args=($@)
+  args=("$@")
+  readonly -a args
 
-  for arg in ${args}; do # get the hostname and move on
-    if ${opt}; then
-      opt=false
-      continue
-    elif [[ ${arg} == '-'* ]]; then
-      opt=true
-      continue
-    else
-      host=${arg}
-      logname="$(date +%Y%b%d-%T) $host.log"
-      break
-    fi
+  while [[ -z "${logfile}" ]] && [[ "${arg}" -le "${#args}" ]]; do
+    case ${args[arg]} in
+      (-[1246AaCfGgKkMNnqsTtVvXxYy]*) (( arg++ )) ;;
+      (-*) (( arg+=2 )) ;;
+      (*) readonly logfile="${logdir}$(date +%Y%b%d-%T) ${args[arg]}.log.asc" ;;
+    esac
   done
 
-  if [[ -n "$host" ]] ; then
-    /usr/bin/ssh $args | tee >(col -b > /tmp/$logname)
-    if [[ -s /tmp/$logname ]]; then
-      gpg --output ~/.ssh/logs/$logname.asc -ear $USER /tmp/$logname
-    fi
-    rm /tmp/$logname
+  if [[ -n "${logfile}" ]]; then
+    readonly logtmp="/tmp/${logfile:t:r}"
+    ${ssh_cmd} $args | tee >(col -b > "${logtmp}")
+    [[ -s "${logtmp}" ]] && gpg --output "${logfile}" -ear $USER "${logtmp}"
+    rm "${logtmp}"
   else
-    /usr/bin/ssh $args
+    ${ssh_cmd} $args
   fi
 }
 
