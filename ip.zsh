@@ -7,7 +7,7 @@
 # arguments:
 #  $1 = ipv4 or ipv6 address
 # returns:
-#  ERR_BAD_ADDR: $1 is not a valid v4 or v6 address
+#  1: $1 is not a valid v4 or v6 address
 ################################################################################
 function baddr() {
   typeset haddr="$1"
@@ -21,7 +21,7 @@ function baddr() {
       baddr+=${(l|8||0|):-${${:-$(( [#2] ${block} ))}#'2#'}}
     done
   elif valid_ipv6_addr "${haddr}" ; then
-    haddr="$(long_ipv6_addr "${haddr}")" || return ${ERR_BAD_ADR}
+    haddr="$(long_ipv6_addr "${haddr}")" || return 1
     for block in ${(ws|:|)haddr}; do
       # next line converts ${block} from base 16 to base 2, strips the leading
       # '2#' base indicator, then pads the string to 16 characters with leading
@@ -29,7 +29,7 @@ function baddr() {
       baddr+=${(l|16||0|):-${${:-$(( [#2] 16#${block} ))}#'2#'}}
     done
   else
-    return ${ERR_BAD_ADDR}
+    return 1
   fi
   echo "${baddr}"
 }
@@ -148,7 +148,7 @@ function short_ipv6_addr() {
 # arguments:
 #  $1=ip address and mask bits in cidr format (eg, 192.168.1.1/24)
 # returns:
-#  ERR_BAD_ADDR: $1 is not a valid v4 or v6 address
+#  1: $1 is not a valid v4 or v6 address
 ################################################################################
 function ntwk() {
   typeset addr="$1"
@@ -164,7 +164,7 @@ function ntwk() {
 # arguments:
 #  $1=ip address and mask bits in cidr format (eg, 192.168.1.1/24)
 # returns:
-#  ERR_BAD_ADDR: $1 is not a valid v4 or v6 address
+#  1: $1 is not a valid v4 or v6 address
 ################################################################################
 function bcast() {
   typeset addr="$1"
@@ -211,7 +211,7 @@ function mask_to_cidr() {
     ('192.0.0.0') echo 2 ;;
     ('128.0.0.0') echo 1 ;;
     ('0.0.0.0') echo 0 ;;
-    (*) return ${ERR_BAD_MASK} ;;
+    (*) return 1 ;;
   esac
 }
 
@@ -250,7 +250,7 @@ function cidr_to_mask() {
     (2) echo '192.0.0.0' ;;
     (1) echo '128.0.0.0' ;;
     (0) echo '0.0.0.0' ;;
-    (*) return ${ERR_BAD_MASK} ;;
+    (*) return 1 ;;
   esac
 }
 
@@ -263,7 +263,7 @@ function cidr_to_mask() {
 #  $1=cidr formated address (ie, 192.168.1.3/24)
 #  $2=n
 # Returns:
-#  ERR_INTERNAL - missing an argument
+#  1 - missing an argument
 ################################################################################
 function nth_ip() {
   typeset n="$2"
@@ -281,7 +281,7 @@ function nth_ip() {
   else
     return 1
   fi
-  [[ ${n} -lt $(( 2#${(l|${host}||1|):-} )) ]] || return 1
+  [[ ${n} -lt $(( 2#${(l|${host}||1|):-} )) ]] || return 1 # getting message 'number truncated after 63 digits' on v6 addresses
 
   baddr="$(baddr ${addr})"
   haddr "${baddr:0:${cidr}}${(l|${host}||0|):-${${:-$(( [#2] ${n} ))}#'2#'}}"
