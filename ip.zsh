@@ -1,6 +1,7 @@
 #!/usr/bin/zsh
 #
 # A library for scripting with network stuff
+# This is an early version. function names are subject to change
 
 ################################################################################
 # prints ip address in binary to stdout
@@ -131,6 +132,7 @@ function short_ipv6_addr() {
     short_addr=${long_addr/$zeros/}
     zeros=${zeros:0:${#zeros}-5}
   done
+  [[ "$short_addr[-1]" == ':' ]] && short_addr+=':'
 
   for index in {1..${(ws|:|)#short_addr}}; do
     hextet="${short_addr[(ws|:|)index]}"
