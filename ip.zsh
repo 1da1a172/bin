@@ -2,6 +2,8 @@
 #
 # A library for scripting with network stuff
 # This is an early version. function names are subject to change
+#
+# TODO: sensible function names; follow the lib::function naming convention
 
 ################################################################################
 # prints ip address in binary to stdout
@@ -14,21 +16,12 @@ function baddr() {
   typeset haddr="$1"
   typeset baddr
   typeset block
+
   if valid_ipv4_addr "${haddr}" ; then
-    for block in ${(ws|.|)haddr}; do
-      # next line converts ${block} to base2, strips the leading '2#' base
-      # indicator, then pads the string to 8 characters with leading 0's
-      # and appends the result to the ${baddr} parameter.
-      baddr+=${(l|8||0|):-${${:-$(( [#2] ${block} ))}#'2#'}}
-    done
+    for block (${(ws|.|)haddr}) baddr+="${(l|8||0|)$(([#2]${block}))#'2#'}"
   elif valid_ipv6_addr "${haddr}" ; then
     haddr="$(long_ipv6_addr "${haddr}")" || return 1
-    for block in ${(ws|:|)haddr}; do
-      # next line converts ${block} from base 16 to base 2, strips the leading
-      # '2#' base indicator, then pads the string to 16 characters with leading
-      # 0's and appends the result to the ${baddr} parameter.
-      baddr+=${(l|16||0|):-${${:-$(( [#2] 16#${block} ))}#'2#'}}
-    done
+    for block (${(ws|:|)haddr}) baddr+="${(l|16||0|)$(([#2]16#${block}))#'2#'}"
   else
     return 1
   fi
@@ -43,21 +36,16 @@ function baddr() {
 function haddr() {
   typeset baddr="$1"
   typeset index
-  typeset block
   typeset -a haddr
 
-  if [[ ${#baddr} == 32 ]]; then # IPv4 address
+  if [[ ${#baddr} == 32 ]]; then
     for index in {1..4}; do
-      block=${baddr:($index - 1) * 8:8}
-      haddr[index]=$(( 2#${block} ))
+      haddr[index]=$((2#${baddr:(${index}-1)*8:8}))
     done
     echo ${(j|.|)haddr}
-  elif [[ ${#baddr} == 128 ]]; then # IPv6 address
-    for index in {1..8}; do
-      block=${baddr:($index - 1) * 16:16}
-      haddr[index]=${${:-$(( [#16] 2#${block} ))}#'16#'}
-    done
-    short_ipv6_addr ${(Lj|:|)haddr}
+  elif [[ ${#baddr} == 128 ]]; then
+    for index ({1..8}) haddr[index]="${$(([#16]2#${baddr:(${index}-1)*16:16}))}"
+    short_ipv6_addr "${(Lj|:|)haddr#'16#'}"
   else
     return 1
   fi
@@ -96,6 +84,7 @@ function valid_ipv6_addr() {
 
 ################################################################################
 # fill in all the implicit zero's on an IPv6 address.
+# TODO: regex instead of loops OR make an addr array and use parameter expansion
 ################################################################################
 function long_ipv6_addr() {
   typeset index
@@ -104,10 +93,9 @@ function long_ipv6_addr() {
 
   valid_ipv6_addr "${addr}" || return 1
   for index in {1..${(ws|:|)#addr}}; do
-    addr[(ws|:|)index]="${(Ll|4||0|):-${addr[(ws|:|)index]:-0}}"
+    addr[(ws|:|)index]="${(Ll|4||0|)${addr[(ws|:|)index]:-0}}"
   done
 
-  # TODO regex could probably do this better
   while [[ $(( ${(ws|:|)#addr} + ${(ws|:|)#filler} )) -lt 8 ]]; do
     filler+=':0000'
   done
@@ -117,7 +105,6 @@ function long_ipv6_addr() {
 
 ################################################################################
 # Apply all IPv6 address abbreviations
-# TODO: fix trailing ::
 # TODO: regex instead of loops.
 ################################################################################
 function short_ipv6_addr() {
@@ -137,7 +124,7 @@ function short_ipv6_addr() {
   for index in {1..${(ws|:|)#short_addr}}; do
     hextet="${short_addr[(ws|:|)index]}"
     while [[ ${#hextet} -gt 1 ]] && [[ ${hextet[1]} == '0' ]]; do
-      hextet=${hextet:1:${#hextet}-1}
+      hextet=${hextet:1}
     done
     short_addr[(ws|:|)${index}]="${hextet}"
   done
@@ -283,8 +270,8 @@ function nth_ip() {
   else
     return 1
   fi
-  [[ ${n} -lt $(( 2#${(l|${host}||1|):-} )) ]] || return 1 # getting message 'number truncated after 63 digits' on v6 addresses
+  [[ ${n} -lt $(( 2#${(l|${host}||1|)} )) ]] || return 1 # getting message 'number truncated after 63 digits' on v6 addresses
 
   baddr="$(baddr ${addr})"
-  haddr "${baddr:0:${cidr}}${(l|${host}||0|):-${${:-$(( [#2] ${n} ))}#'2#'}}"
+  haddr "${baddr:0:${cidr}}${(l|${host}||0|)${$(([#2]${n}))}#'2#'}"
 }
