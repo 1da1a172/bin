@@ -241,7 +241,7 @@ function subnet() {
 # Returns the nth usable IP in a subnet. Takes v4 and v6 addresses. Will only 
 # return usable IP's. if the nth IP is the network address (ie: n=0) or the
 # broadcast address, function will quit with an error
-# TODO: cleanup. parameter names are confusing. logic can probably be refined
+# TODO: handle negative $n for nth ip from end
 # Arguments:
 #  $1=cidr formated address (ie, 192.168.1.3/24)
 #  $2=n
@@ -249,23 +249,27 @@ function subnet() {
 #  1 - missing an argument
 ################################################################################
 function nth_ip() {
+  typeset network="${1%/*}"
+  typeset network_bits
+  typeset network_size="${1#*/}"
+  typeset host_bits
+  typeset host_size
   typeset n="$2"
-  typeset addr="${1%/*}"
-  typeset baddr
-  typeset cidr="${1#*/}"
-  typeset host
 
-  [[ -n "$2" ]] && [[ "$2" -gt 0 ]] || return 1
-  [[ -n "${1[(r)/]}" ]] || return 1
-  if valid_ipv4_addr "${addr}"; then
-    host=$(( 32 - ${cidr} ))
-  elif valid_ipv6_addr "${addr}"; then
-    host=$(( 128 - ${cidr} ))
+  [[ "${network}" != "${network_size}" ]] || return 1
+  [[ $(( $n )) == "$n" ]] || return 1
+
+  network_bits="${$(baddr ${network}):0:${network_size}}"
+  if valid_ipv4_addr ${network}; then
+    host_size=$(( 32 - ${network_size} ))
+  elif valid_ipv6_addr ${network}; then
+    host_size=$(( 128 - ${network_size} ))
   else
     return 1
   fi
-  [[ ${n} -lt $(( 2#${(l|${host}||1|)} )) ]] || return 1 # getting message 'number truncated after 63 digits' on v6 addresses
+  host_bits=${$(([#2]$n))#'2#'}
+  [[ ${host_bits} < ${(l|${host_size}||1|)} ]] || return 1
+  host_bits=${(l|${host_size}||0|)host_bits}
 
-  baddr="$(baddr ${addr})"
-  haddr "${baddr:0:${cidr}}${(l|${host}||0|)${$(([#2]${n}))}#'2#'}"
+  haddr "${network_bits}${host_bits}"
 }
