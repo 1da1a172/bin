@@ -32,6 +32,8 @@ function baddr() {
 # prints ip address in human readable format to stdout
 # arguments:
 #  $1 = 32 or 128 0's and 1's
+# returns:
+#  1: $1 is not a valid v4 or v6 address
 ################################################################################
 function haddr() {
   typeset baddr="$1"
@@ -163,7 +165,7 @@ function bcast() {
   haddr "${(r|${#baddr}||1|)baddr:0:${addr#*/}}"
 }
 
-function mask_to_cidr() {
+function subnet() {
   case "$1" in
     ('255.255.255.255') echo 32 ;;
     ('255.255.255.254') echo 31 ;;
@@ -198,12 +200,6 @@ function mask_to_cidr() {
     ('192.0.0.0') echo 2 ;;
     ('128.0.0.0') echo 1 ;;
     ('0.0.0.0') echo 0 ;;
-    (*) return 1 ;;
-  esac
-}
-
-function cidr_to_mask() {
-  case "$1" in
     (32) echo '255.255.255.255' ;;
     (31) echo '255.255.255.254' ;;
     (30) echo '255.255.255.252' ;;
