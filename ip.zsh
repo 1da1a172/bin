@@ -55,6 +55,7 @@ function valid_ipv4_addr() {
   typeset addr="$1"
   typeset octet
 
+  [[ "${addr[1]}" != '.' ]] || return 1
   [[ ${(ws|.|)#addr} == 4 ]] || return 1
   for octet in ${(ws|.|)addr}; do
     [ ${octet} -le 255 ] &> /dev/null || return 1
@@ -62,12 +63,13 @@ function valid_ipv4_addr() {
   done
 }
 
-# TODO: validation for weird junk (eg, ':::', leading and trailing ':')
 function valid_ipv6_addr() {
   typeset addr="$1"
   typeset hextet
-  typeset digit
 
+  [[ "${addr[1]}" != ':' ]] || return 1
+  [[ "${addr[-1]}" != ':' ]] || [[ "${addr[-2]}" == ':' ]] || return 1
+  [[ -z "${addr[(r):::]}" ]] || return 1
   case "${(ws|::|)#addr}" in
     (1) [[ ${(ws|:|)#addr} -eq 8 ]] || return 1 ;;
     (2) [[ ${(ws|:|)#addr} -le 7 ]] || return 1 ;;
