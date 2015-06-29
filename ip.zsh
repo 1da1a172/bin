@@ -93,10 +93,9 @@ function long_ipv6_addr() {
   typeset pos
   typeset short_addr="$1"
   typeset -a long_addr
-  long_addr=(0 0 0 0 0 0 0 0)
-
   valid_ipv6_addr "${short_addr}" || return 1
 
+  long_addr=(0 0 0 0 0 0 0 0)
   for pos in {1.."${(ws|:|)#short_addr%::*}"}; do
     long_addr[pos]="${short_addr[(ws|:|)pos]}"
   done
@@ -143,7 +142,7 @@ function short_ipv6_addr() {
 # arguments:
 #  $1=ip address and mask bits in cidr format (eg, 192.168.1.1/24)
 # returns:
-#  1: $1 is not a valid v4 or v6 address
+# 1: $1 is not a valid v4 or v6 address
 ################################################################################
 function ntwk() {
   typeset addr="$1"
