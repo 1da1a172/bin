@@ -84,23 +84,29 @@ function valid_ipv6_addr() {
 
 ################################################################################
 # fill in all the implicit zero's on an IPv6 address.
-# TODO: regex instead of loops OR make an addr array and use parameter expansion
+# Arguments:
+#  $1 = IPv6 address
+# Returns:
+#  1 - $1 is not a valid IPv6 address
 ################################################################################
 function long_ipv6_addr() {
-  typeset index
-  typeset addr="$1"
-  typeset filler
+  typeset pos
+  typeset short_addr="$1"
+  typeset -a long_addr
+  long_addr=(0 0 0 0 0 0 0 0)
 
-  valid_ipv6_addr "${addr}" || return 1
-  for index in {1..${(ws|:|)#addr}}; do
-    addr[(ws|:|)index]="${(Ll|4||0|)${addr[(ws|:|)index]:-0}}"
+  valid_ipv6_addr "${short_addr}" || return 1
+
+  for pos in {1.."${(ws|:|)#short_addr%::*}"}; do
+    long_addr[pos]="${short_addr[(ws|:|)pos]}"
   done
+  if [[ -n "${short_addr#*::}" ]]; then
+    for pos in {-1..-"${(ws|:|)#short_addr#*::}"}; do
+      long_addr[9+${pos}]="${short_addr[(ws|:|)pos]}"
+    done
+  fi
 
-  while [[ $(( ${(ws|:|)#addr} + ${(ws|:|)#filler} )) -lt 8 ]]; do
-    filler+=':0000'
-  done
-
-  echo "${addr/"::"/"${filler}:"}"
+  echo ${(j|:|)${(l|4||0|)long_addr}}
 }
 
 ################################################################################
