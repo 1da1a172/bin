@@ -57,8 +57,7 @@ function valid_ipv4_addr() {
 
   [[ ${(ws|.|)#addr} == 4 ]] || return 1
   for octet in ${(ws|.|)addr}; do
-    [ ${octet} -eq ${octet} ] &> /dev/null || return 1
-    [[ ${octet} -le 255 ]] || return 1
+    [ ${octet} -le 255 ] &> /dev/null || return 1
     [[ ${octet} -ge 0 ]] || return 1
   done
 }
