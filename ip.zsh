@@ -76,9 +76,7 @@ function valid_ipv6_addr() {
   esac
 
   for hextet in ${(ws|:|)addr}; do
-    [[ ${#hextet} -le 4 ]] && [[ ${#hextet} -ge 1 ]] || return 1
-    #TODO regex next line instead of checking each character individually
-    for digit (${(s||)hextet}) [[ "${digit}" == [[:xdigit:]] ]] || return 1
+    [[ "${hextet}" =~ "^[[:xdigit:]]{1,4}$" ]] || return 1
   done
 }
 
