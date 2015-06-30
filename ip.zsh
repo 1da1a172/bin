@@ -70,8 +70,10 @@ function valid_ipv6_addr() {
   typeset addr="$1"
   typeset hextet
 
+  [[ "${addr}" =~ '^::' ]] && addr="0${addr}"
   [[ "${addr[1]}" != ':' ]] || return 1
-  [[ "${addr[-1]}" != ':' ]] || [[ "${addr[-2]}" == ':' ]] || return 1
+  [[ "${addr}" =~ '::$' ]] && addr="${addr}0"
+  [[ "${addr[-1]}" != ':' ]] || return 1
   [[ -z "${addr[(r):::]}" ]] || return 1
   case "${(ws|::|)#addr}" in
     (1) [[ ${(ws|:|)#addr} -eq 8 ]] || return 1 ;;
@@ -98,9 +100,11 @@ function long_ipv6_addr() {
   valid_ipv6_addr "${short_addr}" || return 1
 
   long_addr=(0 0 0 0 0 0 0 0)
-  for pos in {1.."${(ws|:|)#short_addr%::*}"}; do
-    long_addr[pos]="${short_addr[(ws|:|)pos]}"
-  done
+  if [[ -n "${short_addr%::*}" ]]; then
+    for pos in {1.."${(ws|:|)#short_addr%::*}"}; do
+      long_addr[pos]="${short_addr[(ws|:|)pos]}"
+    done
+  fi
   if [[ -n "${short_addr#*::}" ]]; then
     for pos in {-1..-"${(ws|:|)#short_addr#*::}"}; do
       long_addr[9+${pos}]="${short_addr[(ws|:|)pos]}"
