@@ -40,10 +40,10 @@ function haddr() {
   typeset index
   typeset -a haddr
 
-  if [[ ${#baddr} == 32 ]]; then
+  if [[ "${baddr}" =~ "^[01]{32}$" ]]; then
     for index ({1..4}) haddr[index]=$((2#${baddr:(${index}-1)*8:8}))
     echo ${(j|.|)haddr}
-  elif [[ ${#baddr} == 128 ]]; then
+  elif [[ "${baddr}" =~ "^[01]{128}$" ]]; then
     for index ({1..8}) haddr[index]="${$(([#16]2#${baddr:(${index}-1)*16:16}))}"
     short_ipv6_addr ${(Lj|:|)haddr#'16#'}
   else
