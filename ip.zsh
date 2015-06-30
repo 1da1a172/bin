@@ -72,7 +72,7 @@ function valid_ipv6_addr() {
 
   [[ "${addr}" =~ '^::' ]] && addr="0${addr}"
   [[ "${addr[1]}" != ':' ]] || return 1
-  [[ "${addr}" =~ '::$' ]] && addr="${addr}0"
+  [[ "${addr}" =~ '::$' ]] && addr+='0'
   [[ "${addr[-1]}" != ':' ]] || return 1
   [[ -z "${addr[(r):::]}" ]] || return 1
   case "${(ws|::|)#addr}" in
@@ -130,6 +130,7 @@ function short_ipv6_addr() {
     short_addr=${long_addr/$zeros/}
     zeros=${zeros:0:${#zeros}-5}
   done
+  [[ "$short_addr[1]" == ':' ]] && short_addr=":${short_addr}"
   [[ "$short_addr[-1]" == ':' ]] && short_addr+=':'
 
   for index in {1..${(ws|:|)#short_addr}}; do
