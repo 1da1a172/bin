@@ -56,7 +56,10 @@ function valid_ipv4_addr() {
   typeset octet
 
   [[ "${addr[1]}" != '.' ]] || return 1
+  [[ "${addr[-1]}" != '.' ]] || return 1
   [[ ${(ws|.|)#addr} == 4 ]] || return 1
+  [[ -z "${addr[(r)..]}" ]] || return 1
+
   for octet in ${(ws|.|)addr}; do
     [ ${octet} -le 255 ] &> /dev/null || return 1
     [[ ${octet} -ge 0 ]] || return 1
