@@ -13,7 +13,6 @@ export VISUAL=/usr/bin/vim
 export KEYTIMEOUT=1
 
 function ssh() {
-  setopt xtrace
   typeset arg=1
   typeset logtmp
   typeset logfile
@@ -38,7 +37,6 @@ function ssh() {
   else
     =ssh $args
   fi
-  unsetopt xtrace
 }
 
 ## END OF FILE #################################################################
