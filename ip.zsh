@@ -4,6 +4,14 @@
 # This is an early version. function names are subject to change
 #
 # TODO: sensible function names; follow the lib::function naming convention
+# functions/things to implement:
+#  number of ips in range
+#  nth ip from end of subnet
+#  given ip is what nth ip in subnet?
+#  dotted-quad notation for v6
+#  valid but not recommended formats for v6 (eg, using :: to compress a signle
+#    hextet)
+#  '::' is a valid address and even prefered over '::0' or '0::'
 
 ################################################################################
 # prints ip address in binary to stdout
