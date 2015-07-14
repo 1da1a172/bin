@@ -4,6 +4,8 @@
 #
 # external commands: cat, cut, dmenu, grep, sed, wc, xrandr
 # Released under GPLv2
+#
+# TODO: add dpi support
 
 typeset XRANDR_TXT # readonly; stdout of running xrandr without any options
 typeset -A OUTPUT_CONFIGURED # key=connected output name
@@ -33,6 +35,7 @@ fi
 
 XRANDR_TXT="$(xrandr)" || exit $?
 
+# TODO: use getopts
 while [[ -n "$1" ]]; do
   case "$1" in
     (-m) OPT_MODE='change' ;;
