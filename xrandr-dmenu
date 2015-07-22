@@ -2,7 +2,7 @@
 #
 # Setup outputs with xrandr as a backend and dmenu as a frontend
 #
-# external commands: cat, cut, dmenu, grep, sed, wc, xrandr
+# external commands: cat, cut, dmenu, grep, sed, xrandr
 # Released under GPLv2
 #
 # TODO: add dpi support
@@ -35,35 +35,44 @@ fi
 
 XRANDR_TXT="$(xrandr)" || exit $?
 
-# TODO: use getopts
-while [[ -n "$1" ]]; do
-  case "$1" in
-    (-m) OPT_MODE='change' ;;
-    (-M) OPT_MODE='no_change' ;;
-    (-r) OPT_ROTATION='change' ;;
-    (-R) OPT_ROTATION='no_change' ;;
-    (--help)
-      show_help
-      exit 0
-      ;;
-    (*)
-      show_help
-      exit 1
-      ;;
-  esac
-  shift
-done
-typeset -r XRANDR_TXT
-typeset -r OPT_MODE
-typeset -r OPT_ROTATION
-
 function () {
+  typeset opt
   typeset output
+  typeset help_msg="usage: xrandr-dmenu [options]
+Setup X outputs position, mode, etc
+Input 'exit' at any point to quit.
+
+Options:
+  -m  Select mode for outputs
+  -M  Use current mode for outputs
+  -r  Select rotation for outputs
+  -R  Use current rotation for outputs"
+
+  while getopts mMrRh opt; do
+    case "${opt}" in
+      ('m') OPT_MODE='change' ;;
+      ('M') OPT_MODE='no_change' ;;
+      ('r') OPT_ROTATION='change' ;;
+      ('R') OPT_ROTATION='no_change' ;;
+      ('h')
+        echo "${help_msg}"
+        exit 0
+        ;;
+      ('?')
+        echo "${help_msg}"
+        exit 1
+        ;;
+    esac
+  done
 
   for output in $(grep ' connected' <<< "${XRANDR_TXT}" | cut -d ' ' -f 1); do
     OUTPUT_CONFIGURED[${output}]='false'
   done
-}
+} "$@"
+
+typeset -r XRANDR_TXT
+typeset -r OPT_MODE
+typeset -r OPT_ROTATION
 
 function main() {
   typeset prompt
@@ -106,20 +115,6 @@ function main() {
     echo "Failed to execute xrandr command:\n${xrandr_cmd}"
     bail 255
   fi
-}
-
-function show_help() {
-  << EOL
-usage: xrandr-dmenu [options]
-Setup X outputs position, mode, etc
-Input 'exit' at any point to quit.
-
-Options:
-  -m  Select mode for outputs
-  -M  Use current mode for outputs
-  -r  Select rotation for outputs
-  -R  Use current rotation for outputs
-EOL
 }
 
 ################################################################################
