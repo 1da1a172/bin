@@ -40,7 +40,7 @@ function () {
   typeset output
   typeset help_msg="usage: xrandr-dmenu [options]
 Setup X outputs position, mode, etc
-Input 'exit' at any point to quit.
+Input 'exit' or press 'ESC' at any point to cancel.
 
 Options:
   -m  Select mode for outputs
@@ -230,10 +230,10 @@ function select_rotation() {
 }
 
 ################################################################################
-# Uses dmenu to select an option. Undisplayed 'exit' option will return code 
-# ${EXIT_CLEAN} to trigger an abort to the script. Validates to make sure the
-# selection is an option. If there is only 1 option, it will automatically
-# choose it. Prints selection to stdout
+# Uses dmenu to select an option. Undisplayed 'exit' option or pressing 'ESC'
+# will return code ${EXIT_CLEAN} to trigger an abort to the script. Validates to
+# make sure the selection is an option. If there is only 1 option, it will
+# automatically choose it. Prints selection to stdout
 # Global variables:
 #  none
 # Arguments:
@@ -260,7 +260,9 @@ function menu_select() {
   else
     while [[ -z "${menu[(r)${selection}]}" ]]; do
       echo "${(F)menu}" | dmenu -p "${prompt}" | read selection
-      [[ "${(L)selection}" == 'exit' ]] && return ${EXIT_CLEAN}
+      [[ "${(L)selection}" == 'exit' ]] || [[ -z "${selection}" ]] \
+        && return ${EXIT_CLEAN}
+      fi
     done
     echo "${selection}"
   fi
