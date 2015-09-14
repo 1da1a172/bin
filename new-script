@@ -1,0 +1,10 @@
+#!/usr/bin/zsh
+
+if [[ -a $1 ]]; then
+  echo 'File exists.' >&2
+  exit 1
+else
+  echo '#!/usr/bin/zsh'$'\n' > $1
+  chmod +x $1
+  vim $1
+fi
