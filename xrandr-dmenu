@@ -262,7 +262,6 @@ function menu_select() {
       echo "${(F)menu}" | dmenu -p "${prompt}" | read selection
       [[ "${(L)selection}" == 'exit' ]] || [[ -z "${selection}" ]] \
         && return ${EXIT_CLEAN}
-      fi
     done
     echo "${selection}"
   fi
