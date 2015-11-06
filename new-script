@@ -1,6 +1,9 @@
 #!/usr/bin/zsh
 
-if [[ -a $1 ]]; then
+if [[ -z $1 ]]; then
+  echo 'Enter a file name.' >&2
+  exit 1
+elif [[ -a $1 ]]; then
   echo 'File exists.' >&2
   exit 1
 else
