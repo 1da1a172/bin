@@ -83,7 +83,7 @@ while [[ -n "$1" ]] do
           fi
           optDirSkip=false
         fi
-        if [[ "${1:-1}" == [$argnext] ]]; then # last opt is expecting an argument next
+        if [[ "${1:(-1)}" == [$argnext] ]]; then # last opt is expecting an argument next
           opts+=( $1 )
           shift
         fi
