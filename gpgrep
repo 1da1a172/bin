@@ -68,8 +68,7 @@ function grep_pgp() {
   fi
 }
 
-while :
-do
+while [[ -n "$1" ]] do
   case "$1" in
     (-*)
       if [[ "${1:1:1}" != "-" ]] ; then # is a short option
@@ -99,7 +98,6 @@ do
       fi
       opts+=( $1 )
       ;;
-    ('') break ;;
     (*) [[ -z $pattern ]] && pattern="$1" || file+="$1" ;;
   esac
   shift
