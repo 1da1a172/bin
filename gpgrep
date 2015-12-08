@@ -46,12 +46,15 @@ function unlist_dirs() { # Would it be better to merge this with recurse_dirs() 
 
 function filter_files() {
   typeset -i index
+  typeset file_type
+
   for index in {1..${#file}}; do
-    if [[ "$(file -Lb ${file[${index}]})" == 'PGP message'* ]]; then
-      pgpfile+=( "${file[${index}]}" )
-    else
-      regfile+=( "${file[${index}]}" )
-    fi
+    file_type="$(file -Lb ${file[index]})"
+
+    [[ "${file_type}" == 'PGP message'* ]] \
+      || [[ "${file_type}" == *'ncrypt'* ]] \
+      && pgpfile+=( "${file[${index}]}" ) \
+      || regfile+=( "${file[${index}]}" )
   done
 }
 
