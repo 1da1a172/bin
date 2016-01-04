@@ -1,2 +1,2 @@
 #!/usr/bin/zsh
-/usr/bin/javaws https://rdweb-preprod.cns.vt.edu/webconsole/globalConsoleApp.jnlp
+/usr/bin/javaws 'https://rdweb-preprod.cns.vt.edu/webconsole/globalConsoleApp.jnlp'
