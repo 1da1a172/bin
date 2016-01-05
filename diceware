@@ -1,0 +1,9 @@
+#!/usr/bin/zsh
+
+typeset -r WORDFILE="${HOME}/Documents/diceware.wordlist.asc"
+
+while [[ -n $1 ]]; do
+  echo -n "$(grep $1 "${WORDFILE}" | cut -f 2) "
+  shift
+done
+echo ''
