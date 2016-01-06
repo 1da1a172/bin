@@ -1,9 +1,15 @@
 #!/usr/bin/zsh
 
-typeset -r WORDFILE="${HOME}/Documents/diceware.wordlist.asc"
+typeset -r WORDFILE="${HOME}/lib/diceware.wordlist.asc"
 
-while [[ -n $1 ]]; do
-  echo -n "$(grep $1 "${WORDFILE}" | cut -f 2) "
-  shift
-done
-echo ''
+gpg --verify "${WORDFILE}" 2>/dev/null
+if [[ $? == 1 ]] then 
+  echo 'Bad signature on word file!'
+  exit 1
+else
+  while [[ -n $1 ]]; do
+    echo -n "$(grep "^$1	" "${WORDFILE}" | cut -f 2)"
+    [[ -n $2 ]] && echo -n ' ' || echo ''
+    shift
+  done
+fi
