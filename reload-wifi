@@ -1,8 +1,0 @@
-#!/usr/bin/zsh
-
-sudo systemctl stop connman.service
-sudo systemctl stop wpa_supplicant.service
-sudo modprobe -r wl
-sleep 2
-sudo modprobe wl
-sudo systemctl start connman.service
