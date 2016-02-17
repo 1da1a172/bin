@@ -1,0 +1,35 @@
+#!/usr/bin/zsh
+
+typeset -r OUTDIR='/home/waldrep/Pictures/Screenshots'
+typeset -r OUTNAME='%Y%b%d-%T_$wx$h_scrot.png'
+typeset -ra MODES=('default' 'select' 'focused')
+typeset -ra APPS=('none' 'gimp' 'sxiv')
+
+typeset -a scrot_opts=()
+typeset mode='unselected'
+typeset app='unselected'
+typeset dmenu_prompt
+
+## Set scrot mode ##
+dmenu_prompt='Screenshot mode:'
+while [[ -z ${MODES[(r)${mode}]} ]]; do
+  mode=$(echo ${(F)MODES} | dmenu -p $dmenu_prompt)
+  [[ -z "${mode}" ]] && exit
+done
+
+case ${mode} in
+  ('select') scrot_opts+=('--select') ;;
+  ('focused') scrot_opts+=('--focused') ;;
+esac
+
+## Set exec app ##
+dmenu_prompt='Open capture with:'
+while [[ -z ${APPS[(r)${app}]} ]]; do
+  app=$(echo ${(F)APPS} | dmenu -p $dmenu_prompt)
+  [[ -z "${app}" ]] && exit
+done
+
+[[ "${app}" != 'none' ]] && scrot_opts+=('--exec' "${app} \$f")
+
+## Take the screenshot ##
+scrot ${scrot_opts} ${OUTDIR}/${OUTNAME}
