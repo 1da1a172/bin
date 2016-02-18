@@ -1,0 +1,47 @@
+#!/usr/bin/zsh
+
+# Adapted from http://serverfault.com/questions/590504/how-do-i-check-if-my-ssl-certificates-have-been-revoked
+
+function errout() {
+  echo "Something went wrong." >& 2
+  exit 1
+}
+
+function get_cn() {
+  openssl x509 -noout -subject -in "$1" | sed 's|^.*/CN=||'
+}
+
+function get_ocsp_uri() {
+  openssl x509 -noout -ocsp_uri -in "$1"
+}
+
+function get_ca_uri() {
+  openssl x509 -in "$1" -noout -text \
+    | grep 'CA Issuers' \
+    | sed 's|^ *CA Issuers - URI:||'
+}
+
+typeset -r CERT_FILE="$1"
+typeset SUBJECT_CN
+typeset OCSP_URI
+typeset CA_CERT_URI
+typeset CA_CERT_FILE
+
+ SUBJECT_CN="$(get_cn       "${CERT_FILE}")" || errout
+   OCSP_URI="$(get_ocsp_uri "${CERT_FILE}")" || errout
+CA_CERT_URI="$(get_ca_uri   "${CERT_FILE}")" || errout
+CA_CERT_FILE="$(mktemp ${TMPDIR:-/tmp}/ca.crt.XXXXXXXX)" || errout
+
+typeset -r SUBJECT_CN
+typeset -r OCSP_URI
+typeset -r CA_CERT_URI
+typeset -r CA_CERT_FILE
+
+curl -so "${CA_CERT_FILE}" "${CA_CERT_URI}" || errout
+openssl ocsp \
+  -issuer ${CA_CERT_FILE} \
+  -cert ${CERT_FILE} \
+  -url ${OCSP_URI} \
+  -header "HOST" "${SUBJECT_CN}"
+
+rm "${CA_CERT_FILE}"
