@@ -1,3 +1,5 @@
 #/usr/bin/zsh
 
-/usr/bin/st -e tmux "$@"
+[[ "$#" == 0 ]] && \
+  exec /usr/bin/st tmux || \
+  exec /usr/bin/st tmux -c "$@"
