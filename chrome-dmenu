@@ -14,4 +14,4 @@ done
 
 name="$(echo ${(F)apps} | dmenu -i)"
 id=${(k)apps[(r)${name}]}
-[[ -n "${id}" ]] && /usr/bin/chromium --app-id=${id}
+[[ -n "${id}" ]] && exec /usr/bin/chromium --app-id=${id}
