@@ -1,2 +1,3 @@
-#!/usr/bin/zsh
-/usr/bin/javaws 'https://rdweb-preprod.cns.vt.edu/webconsole/globalConsoleApp.jnlp'
+#!/usr/bin/sh
+typeset URL='https://rdweb-preprod.cns.vt.edu/webconsole/globalConsoleApp.jnlp'
+exec /usr/bin/javaws "${URL}"
