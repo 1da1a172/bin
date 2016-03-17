@@ -1,4 +1,4 @@
-#!/usr/bin/zsh -x
+#!/usr/bin/zsh
 
 typeset files="~/.local/share/applications/chrome-*-Profile_1.desktop"
 typeset -A apps # key = app-id; value = App Name

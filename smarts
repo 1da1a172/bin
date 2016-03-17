@@ -1,3 +1,3 @@
-#!/usr/bin/sh
+#!/usr/bin/zsh
 typeset URL='https://rdweb-preprod.cns.vt.edu/webconsole/globalConsoleApp.jnlp'
 exec /usr/bin/javaws "${URL}"

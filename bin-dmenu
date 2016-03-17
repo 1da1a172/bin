@@ -1,2 +1,2 @@
-#!/bin/sh
+#!/bin/zsh
 exec $(dmenu_path | dmenu "$@")
