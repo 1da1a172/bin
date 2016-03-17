@@ -1,5 +1,12 @@
-#/usr/bin/zsh
+#!/usr/bin/zsh
 
-[[ "$#" == 0 ]] && \
-  exec /usr/bin/st tmux || \
-  exec /usr/bin/st tmux -c "$@"
+# Create a session with a known and unique name
+typeset -r SESSION=$(pwgen -An 3 1)
+tmux new -d -s "${SESSION}"
+
+# Send commands to the session using "$*" to pass as a single argument,
+# instead of "$@" which we would normally want to preserve the word splits
+[[ "$#" != 0 ]] && tmux send-keys -t "${SESSION}" "$*" ENTER
+
+# Open a terminal emulator and attach the desired session
+exec /usr/bin/st tmux attach -t "${SESSION}"
