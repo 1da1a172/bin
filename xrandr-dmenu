@@ -9,6 +9,7 @@
 
 typeset XRANDR_TXT # readonly; stdout of running xrandr without any options
 typeset -A OUTPUT_CONFIGURED # key=connected output name
+typeset -a DISCONNECT_OUTPUTS
 typeset OPT_MODE='auto'
 typeset OPT_ROTATION='normal'
 typeset -ir EXIT_CLEAN=7
@@ -68,11 +69,15 @@ Options:
   for output in $(grep ' connected' <<< "${XRANDR_TXT}" | cut -d ' ' -f 1); do
     OUTPUT_CONFIGURED[${output}]='false'
   done
+  for output ($(grep ' disconnected' <<< "${XRANDR_TXT}" | cut -d ' ' -f 1)) {
+    DISCONNECTED_OUTPUTS+=("${output}")
+  }
 } "$@"
 
 typeset -r XRANDR_TXT
 typeset -r OPT_MODE
 typeset -r OPT_ROTATION
+typeset -r DISCONNECTED_OUTPUTS
 
 function main() {
   typeset prompt
@@ -108,6 +113,11 @@ function main() {
 
     OUTPUT_CONFIGURED[${output}]='true'
     xrandr_cmd+=" --output ${output} ${position} ${rotation} ${mode}"
+  done
+
+  # forcibly '--off' disconnected outputs
+  for output in ${DISCONNECTED_OUTPUTS}; do
+    xrandr_cmd+=" --output ${output} --off"
   done
 
   # do the deed
