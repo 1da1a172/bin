@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
 
 # Create a session with a known and unique name
-typeset -r SESSION="[$(pwgen -An 3 1)]"
+typeset -r SESSION="[$(pwgen -s 4 1)]"
 tmux new -d -s "${SESSION}"
 
 # Send commands to the session using "$*" to pass as a single argument,
