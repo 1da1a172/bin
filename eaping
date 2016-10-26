@@ -100,6 +100,20 @@ function set_count() {
   fi
 }
 
+function set_delay() {
+  if [[ "${delay}" != 1 ]]; then
+    echo 'Only one -d option may be specified' >&2
+    exit ${EXIT[BAD_OPT]}
+  fi
+
+  if [[ "$1" == <0-> ]]; then
+    delay="$1"
+  else
+    echo '-d must supply a nonnegative integer' >&2
+    exit ${EXIT[BAD_OPT]}
+  fi
+}
+
 function set_port() {
   if [[ -z "${RAD_PORT}" ]]; then
     if [[ "$1" == <0-65536> ]]; then
@@ -282,14 +296,16 @@ typeset -i succ
 typeset -i rej
 typeset -i fail
 typeset -i timeout
+typeset -i delay=1
 
 typeset opt
-while getopts '46c:C:hp:r:s:' opt; do
+while getopts '46c:C:d:hp:r:s:' opt; do
   case "${opt}" in
     ('4') set_ip_version 4 ;;
     ('6') set_ip_version 6 ;;
     ('c') set_config "${OPTARG}" ;;
     ('C') set_count "${OPTARG}" ;;
+    ('d') set_delay "${OPTARG}" ;;
     ('h') help_msg ;;
     ('p') set_port "${OPTARG}" ;;
     ('r') set_server "${OPTARG}" ;;
@@ -316,6 +332,6 @@ trap catch_int INT
 while [[ ${COUNT} -eq 0 ]] || [[ ${counter} -le ${COUNT} ]]; do
   (( counter++ ))
   rad_test
-  sleep 1
+  sleep "${delay}"
 done
 catch_int
