@@ -237,14 +237,14 @@ function auth_abort() {
   echo "ABORTED auth to ${rad_id}: ${seq} ${msg_time}"
 }
 
-function update_maxmin() {
+function update_minmax() {
   if [[ ${counter} == 1 ]]; then
     TIME_MIN=${time_span}
     TIME_MAX=${time_span}
   else
-    if [[ ${time_span} < ${TIMEMIN} ]]; then
+    if (( $(bc <<< "${time_span} < ${TIME_MIN}") )); then
       TIME_MIN=${time_span}
-    elif [[ ${time_span} > ${TIMEMAX} ]]; then
+    elif (( $(bc <<< "${time_span} > ${TIME_MAX}") )); then
       TIME_MAX=${time_span}
     fi
   fi
@@ -255,21 +255,21 @@ function update_total() {
 }
 
 function auth_succ() {
-  update_maxmin
+  update_minmax
   update_total
   (( succ++ ))
   echo "SUCCESS from ${rad_id}: ${seq} ${msg_time}"
 }
 
 function auth_rej() {
-  update_maxmin
+  update_minmax
   update_total
   (( rej++ ))
   echo "REJECT from ${rad_id}: ${seq} ${msg_time}"
 }
 
 function auth_fail() {
-  update_maxmin
+  update_minmax
   update_total
   (( fail++ ))
   echo "FAILURE from ${rad_id}: ${seq} ${msg_time}"
