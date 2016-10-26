@@ -1,0 +1,122 @@
+#!/usr/bin/zsh
+
+function sanity_check() {
+  if [[ -z "${CERT}" ]]; then
+    echo "Certificate file not specified." >&2
+    exit 1
+  elif [[ ! -r "${CERT}" ]]; then
+    echo "Certificate ${CERT} not found or not readable." >&2
+    exit 1
+  fi
+
+  if [[ -z "${REQ}" ]]; then
+    echo "Request file not specified." >&2
+    exit 1
+  elif [[ ! -r "${REQ}" ]]; then
+    echo "Request ${REQ} not found or not readable." >&2
+    exit 1
+  fi
+
+  if [[ -n "${KEY}" && ! -r "${KEY}" ]]; then
+    echo "Key file not found or not readable." >&2
+    exit 1
+  fi
+}
+
+function get_subj() {
+  typeset subcmd="$1"
+  typeset file="$2"
+
+  openssl "${subcmd}" \
+    -in "${file}" \
+    -noout \
+    -subject \
+    -nameopt multiline \
+    | grep -v 'subject=' \
+    | sed 's/^ *//'
+}
+
+function get_mod() {
+  typeset subcmd="$1"
+  typeset file="$2"
+  typeset filetype="$(file -b --mime-type "${file}")"
+
+  [[ "${filetype}" == 'application/pgp' ]] \
+    && openssl "${subcmd}" -in <(gpg -qd "${file}") -noout -modulus \
+    || openssl "${subcmd}" -in "${file}" -noout -modulus
+}
+
+function get_an() {
+  typeset subcmd="$1"
+  typeset file="$2"
+
+  openssl "${subcmd}" \
+    -in "${file}" \
+    -noout \
+    -text \
+    | grep 'X509v3 Subject Alternative Name:' -A 1 \
+    | tail -n 1 \
+    | sed 's/,/\n/g' \
+    | sed 's/^ *//' \
+    | sort
+}
+
+function check_subj() {
+  $DIFF <(get_subj req "${REQ}") <(get_subj x509 "${CERT}")
+}
+
+function check_key() {
+  diff -w <(get_mod req "${REQ}") <(get_mod x509 "${CERT}") \
+    || echo "modulus from ${REQ} differs from modulus in ${CERT}"
+
+  if [[ -n "${KEY}" ]]; then
+    $DIFF <(get_mod rsa "${KEY}") <(get_mod x509 "${CERT}")
+    $DIFF <(get_mod rsa "${KEY}") <(get_mod req  "${REQ}")
+  fi
+}
+
+function check_an() {
+  $DIFF <(get_an req "${REQ}" | sort) <(get_an x509 "${CERT}" | sort)
+}
+
+typeset -r help_text="Usage: ${0:t} [OPTIONS] -c CERTIFICATE -r REQUEST
+Verify CERTIFICATE was created from REQUEST.
+Prints any mismatches to stdout.
+
+  -c CERTIFICATE  Certificate to check
+  -r REQUEST      request to check against
+  -k KEY          verify CERTIFICATE and REQUEST use key KEY
+  -h              print this help message"
+
+typeset CERT
+typeset REQ
+typeset KEY
+typeset opt
+typeset -ra DIFF=(diff -w -y --suppress-common-lines)
+
+while getopts 'hk:c:r:' opt; do
+  case "${opt}" in
+    ('c')
+      CERT="${OPTARG}"
+      typeset -r CERT
+      ;;
+    ('r')
+      REQ="${OPTARG}"
+      typeset -r REQ
+      ;;
+    ('k')
+      KEY="${OPTARG}"
+      typeset -r KEY
+      ;;
+    ('h')
+      echo "${help_text}"
+      exit 0;
+      ;;
+  esac
+done
+unset opt
+sanity_check
+
+check_subj
+check_key
+check_an
