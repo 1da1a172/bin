@@ -1,0 +1,2 @@
+#!/bin/zsh -x
+exec gksudo $(dmenu_path | dmenu "$@")
