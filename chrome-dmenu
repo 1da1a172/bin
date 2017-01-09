@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
 
 typeset profile=${1:-Default}
-typeset files="~/.local/share/applications/chrome-*-${profile}.desktop"
+typeset files="~/.local/share/applications/chrome-*-${profile/ /_}.desktop"
 typeset -A apps # key = app-id; value = App Name
 typeset file
 typeset id
