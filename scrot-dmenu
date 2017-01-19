@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
 
-typeset -r OUTDIR='/home/waldrep/Pictures/Screenshots'
-typeset -r OUTNAME='%Y%b%d-%T_$wx$h_scrot.png'
+typeset -r OUTDIR='/home/waldrep/pictures/screenshots'
+typeset -r OUTNAME='%Y%b%d-%H%M%S_$wx$h_scrot.png'
 typeset -ra MODES=('default' 'select' 'focused')
 typeset -ra APPS=('none' 'gimp' 'sxiv')
 
