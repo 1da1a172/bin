@@ -1,6 +1,7 @@
 #!/usr/bin/zsh
 
-# Adapted from http://serverfault.com/questions/590504/how-do-i-check-if-my-ssl-certificates-have-been-revoked
+# Adapted from
+# http://serverfault.com/questions/590504/how-do-i-check-if-my-ssl-certificates-have-been-revoked
 
 function errout() {
   echo "Something went wrong." >& 2
