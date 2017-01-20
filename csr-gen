@@ -1,8 +1,9 @@
-#!/usr/bin/zsh
+#!/usr/bin/zsh -x
 # TODO: document usage
 # TODO: allow using an existing key
 # TODO: use named arguments (eg: -cn, -an, --key-recipient)
 # TODO: make conf output optional
+# TODO: add option to use openssl098
 
 function print_config {
   typeset -r CN="$1"
@@ -45,8 +46,9 @@ EOF
 typeset -r KEY_RECIP=(   '0xEB77F7CC0DBAF5F5' # waldrep@vt.edu
                       -r '0x38A2E59F337F062C' # stlee@vt.edu
                       -r '0x66FA534E2A83CAC8')# markhw@vt.edu
+typeset -r OPENSSL="openssl"
 
-openssl req \
+${OPENSSL} req \
   -config <(print_config "$@" | tee $1.conf) \
   -new \
   -out $1.csr \
