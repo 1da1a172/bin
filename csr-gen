@@ -1,4 +1,4 @@
-#!/usr/bin/zsh -x
+#!/usr/bin/zsh
 # TODO: document usage
 # TODO: allow using an existing key
 # TODO: use named arguments (eg: -cn, -an, --key-recipient)
