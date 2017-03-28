@@ -30,17 +30,17 @@ fi
 
 # set session name
 session="${app}"
-## while there is a session collision
+## while there is a session name collision
 while [[ -n "${SESSIONS[(R)${session}]}" ]]; do
   (( serial++ ))
   session="${app}${serial}"
 done
 
-# Create a session named after the application we want to run
+# New session with the desired name
 tmux new -d -s "${session}"
 
-# Send commands to the session using "$*" to pass as a single argument,
-# instead of "$@" which we would normally want to preserve the word splits
+# pass the keystrokes to run the command we want
+# It's exed'd so the session closes with the app
 tmux send-keys -t "${session}" "exec ${app} ${args}" ENTER
 
 # Open a terminal emulator and attach the session
