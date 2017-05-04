@@ -1,9 +1,26 @@
 #!/usr/bin/zsh
 # TODO: document usage
+# TODO: use named arguments (eg: --cn, --an, --key-recipient)
 # TODO: allow using an existing key
-# TODO: use named arguments (eg: -cn, -an, --key-recipient)
 # TODO: make conf output optional
 # TODO: add option to use openssl098
+
+function print_help {
+  << EOF
+Usage: ${SCRIPT_NAME} -c FQDN [OPTIONS]  
+
+  -a NAME    Specify NAME as an alternate name
+  -c FQDN    Specify the CN. This will also be used as the 1st AN.
+  -h         Display this help message
+  -k FILE    Use FILE as the private key for the certificate.
+             Can be clear-text or gpg decryptable.
+  -r KEY_ID  Specify a gpg-key to encrypt the private key with
+  -w FILE    Write the openssl config used to FILE
+  -9         Use openssl 0.9.8
+
+To specify more than one item for -a or -k, use a comma separated list.
+EOF
+}
 
 function print_config {
   typeset -r CN="$1"
@@ -43,10 +60,41 @@ EOF
   fi
 }
 
-typeset -r KEY_RECIP=(   '0xEB77F7CC0DBAF5F5' # waldrep@vt.edu
-                      -r '0x38A2E59F337F062C' # stlee@vt.edu
-                      -r '0x66FA534E2A83CAC8')# markhw@vt.edu
-typeset -r OPENSSL="openssl"
+typeset -r SCRIPT_NAME="${0:t}"
+typeset -rA EXIT=('GOOD'            0
+                  'MISSING_REQ_OPT' 1)
+typeset key_recip=(   '0xEB77F7CC0DBAF5F5'  # waldrep@vt.edu
+                   -r '0x38A2E59F337F062C'  #   stlee@vt.edu
+                   -r '0x66FA534E2A83CAC8') #  markhw@vt.edu
+typeset openssl==openssl # note use of =bin expansion
+typeset an_list
+typeset cn
+typeset -a dns
+typeset key_list
+typeset save_config=false
+
+while getopts 'a:c:hk:r:w:9' opt; do
+  case "${opt}" in
+    ('a') an_list="${opt}" ;;
+    ('c') cn="${opt}" ;;
+    ('h')
+      print_help
+      exit ${EXIT[GOOD]}
+      ;;
+    ('k') key_file="${opt}" ;;
+    ('r') key_recip=(${opt//,/ -r }) ;;
+    ('w') save_config=true ;;
+    ('9') OPENSSL==openssl098 ;; # note =bin expansion
+  esac
+done
+
+if [[ -z "${cn}" ]]; then
+  echo "Missing CN." >& 2
+  print_help >& 2
+  exit ${EXIT[MISSING_REQ_OPT]}
+fi
+
+dns=("${cn}" ${an_list//,/ })
 
 ${OPENSSL} req \
   -config <(print_config "$@" | tee $1.conf) \
@@ -54,3 +102,4 @@ ${OPENSSL} req \
   -out $1.csr \
   -newkey rsa:2048 \
   -keyout >(gpg -ear ${KEY_RECIP} > "$1.key.asc")
+fi
