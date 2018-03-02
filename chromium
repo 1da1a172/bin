@@ -1,3 +1,0 @@
-#!/usr/bin/zsh
-
-exec /usr/bin/chromium --force-device-scale-factor=1.25 "$@"
