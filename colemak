@@ -1,0 +1,4 @@
+#!/usr/bin/zsh
+
+setxkbmap -model pc104 -layout us -variant colemak -option caps:escape
+numlockx on

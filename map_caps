@@ -1,3 +1,0 @@
-#!/usr/bin/zsh
-
-setxkbmap -option caps:escape
