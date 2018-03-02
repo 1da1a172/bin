@@ -257,7 +257,6 @@ function menu_select() {
   [[ -z "$2" ]] && return ${ERR_BAD_ARGS}
 
   typeset selection
-  typeset item
   typeset prompt
   typeset -a menu
 
