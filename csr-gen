@@ -7,7 +7,7 @@
 
 function print_config {
   typeset -r CN="$1"
-  shift
+  #shift
   typeset -r AN=("$@")
 
   << EOF
