@@ -43,9 +43,10 @@ EOF
   fi
 }
 
-typeset -r KEY_RECIP=(   '0xEB77F7CC0DBAF5F5' # waldrep@vt.edu
-                      -r '0x38A2E59F337F062C' # stlee@vt.edu
-                      -r '0x66FA534E2A83CAC8')# markhw@vt.edu
+typeset -r KEY_RECIP=(   '0x7B91C0701DA1A172'  # spartan074@gmail.com (ed25519)
+                      -r '0xEB77F7CC0DBAF5F5'  # waldrep@vt.edu
+                      -r '0x38A2E59F337F062C'  # stlee@vt.edu
+                      -r '0x66FA534E2A83CAC8') # markhw@vt.edu
 typeset -r OPENSSL="openssl"
 
 ${OPENSSL} req \
