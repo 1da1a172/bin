@@ -3,46 +3,84 @@
 # Adapted from
 # http://serverfault.com/questions/590504/how-do-i-check-if-my-ssl-certificates-have-been-revoked
 
+function main() {
+  is_pem_cert "$1" || errout
+
+  typeset -r CERT_FILE="$1"
+  typeset -r SUBJECT_CN="$(get_cn "${CERT_FILE}")"
+  typeset -r OCSP_URI="$(get_ocsp_uri "${CERT_FILE}")"
+  typeset -r CA_CERT_URI="$(get_ca_uri "${CERT_FILE}")"
+  typeset -r CA_CERT_FILE="$(mktemp ${TMPDIR:-/tmp}/ca.crt.XXXXXXXX)"
+
+  curl -so "${CA_CERT_FILE}" "${CA_CERT_URI}" || errout
+
+  is_pem_cert "${CA_CERT_FILE}" || der_to_pem "${CA_CERT_FILE}"
+
+  openssl ocsp \
+    -issuer ${CA_CERT_FILE} \
+    -cert ${CERT_FILE} \
+    -url ${OCSP_URI} \
+    -header "HOST=${SUBJECT_CN}"
+
+  rm "${CA_CERT_FILE}"
+}
+
 function errout() {
   echo "Something went wrong." >& 2
   exit 1
 }
 
+function is_pem_cert() {
+  typeset -r CERT_HEADER='-----BEGIN CERTIFICATE-----'
+
+  [[ "${CERT_HEADER}" == "$(head -n 1 $1)" ]]
+  return $?
+}
+
+function der_to_pem() {
+  typeset -r TMP_OUT="$(mktemp ${TMPDIR:-/tmp}/crt.XXXXXXXX)"
+
+  openssl x509 \
+    -inform DER \
+    -in "$1" \
+    -outform PEM \
+    > $TMP_OUT
+
+  if [[ $? != 0 ]]; then
+    [[ -f "${TMP_OUT}" ]] && rm "${TMP_OUT}"
+    errout
+  fi
+
+  mv $TMP_OUT $1
+}
+
 function get_cn() {
-  openssl x509 -noout -subject -in "$1" | sed 's|^.*/CN=||'
+  openssl x509 \
+    -noout \
+    -subject \
+    -in "$1" \
+    | sed 's|^.*CN = ||' \
+    || errout
 }
 
 function get_ocsp_uri() {
-  openssl x509 -noout -ocsp_uri -in "$1"
+  openssl x509 \
+    -noout \
+    -ocsp_uri \
+    -in "$1" \
+    || errout
 }
 
 function get_ca_uri() {
-  openssl x509 -in "$1" -noout -text \
+  openssl x509 \
+    -in "$1" \
+    -noout \
+    -text \
     | grep 'CA Issuers' \
-    | sed 's|^ *CA Issuers - URI:||'
+    | sed 's|^ *CA Issuers - URI:||' \
+    || errout
 }
 
-typeset -r CERT_FILE="$1"
-typeset SUBJECT_CN
-typeset OCSP_URI
-typeset CA_CERT_URI
-typeset CA_CERT_FILE
+main "$@"
 
- SUBJECT_CN="$(get_cn       "${CERT_FILE}")" || errout
-   OCSP_URI="$(get_ocsp_uri "${CERT_FILE}")" || errout
-CA_CERT_URI="$(get_ca_uri   "${CERT_FILE}")" || errout
-CA_CERT_FILE="$(mktemp ${TMPDIR:-/tmp}/ca.crt.XXXXXXXX)" || errout
-
-typeset -r SUBJECT_CN
-typeset -r OCSP_URI
-typeset -r CA_CERT_URI
-typeset -r CA_CERT_FILE
-
-curl -so "${CA_CERT_FILE}" "${CA_CERT_URI}" || errout
-openssl ocsp \
-  -issuer ${CA_CERT_FILE} \
-  -cert ${CERT_FILE} \
-  -url ${OCSP_URI} \
-  -header "HOST" "${SUBJECT_CN}"
-
-rm "${CA_CERT_FILE}"
+# vim: autoindent expandtab sts=2 ts=2 tw=2 colorcolumn=81
