@@ -1,0 +1,52 @@
+#!/usr/bin/zsh
+
+function main {
+  typeset mac
+
+  if [[ -n "$1" ]]; then
+    mac="$1"
+  else
+    mac=$(: | dmenu -p "Enter the MAC:")
+  fi
+
+  mac=$(normalize $mac)
+  menu=$(printf \
+    '%s\n%s\n%s\n%s\n%s\n%s' \
+    $mac \
+    $(to_upper $mac) \
+    $(to_dash $mac) \
+    $(to_upper $(to_dash $mac)) \
+    $(remove_delim $mac) \
+    $(to_upper $(remove_delim $mac))
+  )
+
+  dmenu <<< "$menu" | xclip
+}
+
+function normalize() {
+  typeset -a macnew
+  typeset stripped=$(remove_delim $(to_lower $1))
+  typeset -i i
+  for i in $(seq 0 2 10); do
+    macnew+=(${stripped:$i:2})
+  done
+  echo ${(j|:|)macnew}
+}
+
+function to_lower() {
+  tr '[A-F]' '[a-f]' <<< $1
+}
+
+function to_upper() {
+  tr '[a-f]' '[A-F]' <<< $1
+}
+
+function to_dash() {
+  tr ':' '-' <<< $1
+}
+
+function remove_delim() {
+  tr -dc '[:xdigit:]' <<< $1
+}
+
+main "$@"
