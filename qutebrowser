@@ -1,3 +1,0 @@
-#!/usr/bin/zsh
-
-/usr/bin/qutebrowser --backend webengine
