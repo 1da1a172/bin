@@ -1,0 +1,4 @@
+#!/usr/bin/zsh
+# because in some contexts, middle click or shift-ins doesn't work
+
+xclip -o | xargs -d '\n' xdotool type --clearmodifiers --
