@@ -1,3 +1,3 @@
 #!/usr/bin/zsh
 
-java -jar ~/lib/vt-ATLAS.jar
+java -jar "${USER_LIB}/vt-ATLAS.jar"
