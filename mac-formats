@@ -1,32 +1,38 @@
-#!/usr/bin/zsh
+#!/usr/bin/zsh -x
+#
+# Convert a MAC address to various formats
+#
+# Reads the X11 primary, for a valid mac
 
-function main {
-  typeset mac
+typeset -ir EXIT_CLEAN=7
+typeset -ir ERR_BAD_ARGS=257
 
-  if [[ -n "$1" ]]; then
-    mac="$1"
-  else
-    mac=$(: | dmenu -p "Enter the MAC:")
-  fi
+function main() {
+  typeset mac="$(xclip -o)"
 
-  mac=$(normalize $mac)
-  menu=$(printf \
-    '%s\n%s\n%s\n%s\n%s\n%s' \
-    $mac \
-    $(to_upper $mac) \
-    $(to_dash $mac) \
-    $(to_upper $(to_dash $mac)) \
-    $(remove_delim $mac) \
-    $(to_upper $(remove_delim $mac))
-  )
+  printf '%s' "$mac" | valid_mac \
+    || mac=$(prompt_mac) \
+    || bail $?
 
-  dmenu <<< "$menu" | xclip
+  {menu_select 'Select a format:' $(all_formats <<< $mac) || xclip -o} | xclip
+}
+
+function all_formats() {
+  { normalize | tee \
+      >(to_upper) \
+      >(to_dash) \
+      >(to_dash | to_upper) \
+      >(remove_delim) \
+      >(remove_delim | to_upper)
+  } | sort -Vir
 }
 
 function normalize() {
   typeset -a macnew
-  typeset stripped=$(remove_delim $(to_lower $1))
+  typeset stripped
   typeset -i i
+
+  remove_delim | to_lower | read stripped
   for i in $(seq 0 2 10); do
     macnew+=(${stripped:$i:2})
   done
@@ -34,19 +40,94 @@ function normalize() {
 }
 
 function to_lower() {
-  tr '[A-F]' '[a-f]' <<< $1
+  tr '[A-F]' '[a-f]'
 }
 
 function to_upper() {
-  tr '[a-f]' '[A-F]' <<< $1
+  tr '[a-f]' '[A-F]'
 }
 
 function to_dash() {
-  tr ':' '-' <<< $1
+  tr ':' '-'
 }
 
 function remove_delim() {
-  tr -dc '[:xdigit:]' <<< $1
+  tr -dc '[:xdigit:]\n'
+}
+
+function bail() {
+  [[ "$1" == $EXIT_CLEAN ]] && exit 0 || exit "$1"
+}
+
+################################################################################
+# Is stdin a valid mac?
+# Returns:
+#  0=valid mac
+#  1=invalid mac
+################################################################################
+function valid_mac() {
+  [[ $(remove_delim | tr -d '\n' | wc -c) == 12 ]]
+}
+
+################################################################################
+# Prompt for a mac address.
+# Undisplayed 'exit' option or pressing 'ESC' will return code $EXIT_CLEAN to
+#   trigger an abort to the script.
+# Validates to make sure the selection is a valid MAC address.
+# Prints the MAC address to stdout.
+# Global variables:
+#  EXIT_CLEAN
+# Returns:
+#  EXIT_CLEAN=user requested exit
+################################################################################
+function prompt_mac() {
+  typeset mac
+  typeset prompt='Enter a MAC address:'
+
+  while ! valid_mac <<< "$mac"; do
+    : | dmenu -p "$prompt" | read mac
+    [[ "$mac" == 'exit' ]] || [[ -z "$mac" ]] && return $EXIT_CLEAN
+  done
+  echo -n "$mac"
+}
+
+################################################################################
+# Uses dmenu to select an option. Undisplayed 'exit' option or pressing 'ESC'
+# will return code $EXIT_CLEAN to trigger an abort to the script. Validates to
+# make sure the selection is an option. If there is only 1 option, it will
+# automatically choose it. Prints selection to stdout
+# Global variables:
+#  ERR_BAD_ARGS
+#  EXIT_CLEAN
+# Arguments:
+#  $1=prompt
+#  $2+=menu items
+# Returns:
+#  ERR_BAD_ARGS=bad arguments
+#  EXIT_CLEAN=user requested exit
+################################################################################
+function menu_select() {
+  [[ -z "$2" ]] && return $ERR_BAD_ARGS
+
+  typeset selection
+  typeset prompt
+  typeset -a menu
+
+  prompt="$1"
+  shift
+  menu=($*)
+
+  if [[ ${#menu} == 1 ]]; then
+    echo "$menu"
+  else
+    while [[ -z "${menu[(r)$selection]}" ]]; do
+      echo "${(F)menu}" | dmenu -p "$prompt" | read selection
+      [[ "${(L)selection}" == 'exit' ]] \
+        || [[ -z "$selection" ]] \
+        && return $EXIT_CLEAN
+    done
+    echo "$selection"
+  fi
 }
 
 main "$@"
