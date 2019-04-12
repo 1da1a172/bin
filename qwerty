@@ -1,4 +1,0 @@
-#!/usr/bin/zsh
-
-setxkbmap -model pc104 -layout us -variant , -option caps:escape
-numlockx on
