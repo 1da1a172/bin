@@ -1,12 +1,15 @@
 #!/usr/bin/zsh
 
-# Create a session with a known and unique name
+typeset -r TMUX='/usr/bin/tmux'
+typeset -r ST='/usr/bin/st'
 typeset -r SESSION="[$(pwgen -s 4 1)]"
-tmux new -d -s "${SESSION}"
+
+# Create a session with a known and unique name
+$TMUX new -d -s "$SESSION"
 
 # Send commands to the session using "$*" to pass as a single argument,
 # instead of "$@" which we would normally want to preserve the word splits
-[[ "$#" != 0 ]] && tmux send-keys -t "${SESSION}" "$*" ENTER
+[[ "$#" != 0 ]] && $TMUX send-keys -t "$SESSION" "$*" ENTER
 
 # Open a terminal emulator and attach the desired session
-exec /usr/bin/st tmux attach -t "${SESSION}"
+exec $ST $TMUX attach -t "$SESSION"
