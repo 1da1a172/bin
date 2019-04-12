@@ -1,8 +1,0 @@
-#!/usr/bin/zsh
-
-if [[ "$(file -b $1)" == 'Microsoft Word 2007+' ]]; then
-  pandoc -s -f docx -t man $1 | man -l -
-else
-  echo "$1 does not appear to be a docx file."
-  return 1
-fi
