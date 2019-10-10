@@ -1,4 +1,4 @@
-#!/usr/bin/zsh -x
+#!/usr/bin/zsh
 #
 # Convert a MAC address to various formats
 #
