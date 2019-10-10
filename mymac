@@ -1,0 +1,19 @@
+#!/usr/bin/zsh
+
+typeset -a LINKS
+
+for int in $(ls -1 /sys/class/net); do
+  [[ "$int" != "lo" ]] \
+    && (( $(< /sys/class/net/$int/carrier) )) \
+    && LINKS+=($int)
+done
+
+if [[ ${#LINKS} = 0 ]]; then
+  exit 1
+elif [[ ${#LINKS} > 1 ]]; then
+  int=$(dmenu -p "Select an interface:" <<< ${(F)LINKS})
+else
+  int=$LINKS
+fi
+
+mac-formats < /sys/class/net/$int/address
