@@ -14,7 +14,7 @@ function main() {
     || mac=$(prompt_mac) \
     || bail $?
 
-  {menu_select 'Select a format:' $(all_formats <<< $mac) || xclip -o} | xclip
+  {menu_select 'Select a format:' $(all_formats <<< $mac) || xclip -o} | tr -d '\n' | xclip
 }
 
 function all_formats() {
