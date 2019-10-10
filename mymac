@@ -16,4 +16,5 @@ else
   int=$LINKS
 fi
 
-mac-formats < /sys/class/net/$int/address
+xclip < /sys/class/net/$int/address
+mac-formats
