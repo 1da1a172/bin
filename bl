@@ -1,0 +1,47 @@
+#!/usr/bin/zsh
+
+typeset nb # new brightness
+typeset -r ACPI_PATH='/sys/class/backlight/intel_backlight'
+
+function actual() {
+  cat "${ACPI_PATH}/actual_brightness"
+}
+
+function max() {
+  cat "${ACPI_PATH}/max_brightness"
+}
+
+function min() {
+  echo 1
+}
+
+function print_help() {
+  w=$(range | wc -c)
+  printf 'Usage: %s [VALUE]\n' ${0:t}
+  printf 'Set the backlight brightness to VALUE. VALUE can be:\n'
+  printf "  %${w}s\t%s\n" 'null' \
+    'Set the brightness to the minimum, if it is not already.'
+  printf "  %${w}s\t%s\n" '' 'Otherwise, set to maximum.'
+  printf "  %${w}s\t%s\n" 'max' 'The maximum brightness.'
+  printf "  %${w}s\t%s\n" 'min' 'The minimum brightness.'
+  printf "  %${w}s\t%s\n" $(range) 'Literal values accepted by ACPI'
+}
+
+function range() {
+  printf '%d-%d' $(min) $(max)
+}
+
+if [[ -z "$1" ]]; then
+  [[ $(actual) == $(min) ]] && nb=$(max) || nb=$(min)
+elif [[ "$1" == 'max' ]]; then
+  nb=$(max)
+elif [[ "$1" == 'min' ]]; then
+  nb=$(min)
+elif [[ "$(min)" -le "$1" ]] && [[ "$1" -le $(max) ]]; then
+  nb=$1
+else
+  print_help >& 2
+  exit 1
+fi
+
+echo $nb > ${ACPI_PATH}/brightness
