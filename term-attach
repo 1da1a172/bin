@@ -1,0 +1,11 @@
+#!/usr/bin/sh
+
+# This script will use dmenu to list the current tmux sessions
+# The selected session will be opened in a new instance of st
+
+typeset session
+
+session=$(tmux list-sessions | dmenu -l 5 | cut -f 1 -d ':')
+
+[[ -z "${session}" ]] || \
+  $TERMINAL -e /usr/bin/tmux attach-session -t "${session}"
