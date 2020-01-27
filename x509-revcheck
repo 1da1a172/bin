@@ -4,8 +4,6 @@
 # http://serverfault.com/questions/590504/how-do-i-check-if-my-ssl-certificates-have-been-revoked
 
 function main() {
-  is_pem_cert "${CA_CERT_FILE}" || der_to_pem "${CA_CERT_FILE}"
-
   typeset -r CERT_FILE="$1"
   typeset -r SUBJECT_CN="$(get_cn "${CERT_FILE}")"
   typeset -r OCSP_URI="$(get_ocsp_uri "${CERT_FILE}")"
@@ -13,6 +11,7 @@ function main() {
   typeset -r CA_CERT_FILE="$(mktemp ${TMPDIR:-/tmp}/ca.crt.XXXXXXXX)"
 
   curl -so "${CA_CERT_FILE}" "${CA_CERT_URI}" || errout
+  is_pem_cert "${CA_CERT_FILE}" || der_to_pem "${CA_CERT_FILE}"
 
   openssl ocsp \
     -issuer ${CA_CERT_FILE} \
