@@ -1,0 +1,6 @@
+#!/usr/bin/zsh
+
+typeset URL='https://apps.middleware.vt.edu/ws/v1/tokens'
+typeset TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
+
+curl "${URL}" -XPOST -u "${USER}" > "TOKEN.${TIMESTAMP}"

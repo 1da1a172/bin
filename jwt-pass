@@ -1,0 +1,8 @@
+#!/usr/bin/zsh
+
+cd $HOME
+TOKEN=`ls -lart TOKEN* | tail -1 | awk ' { print $9; } '`
+echo "From $TOKEN"
+#cat $TOKEN | cut -d. -f2 | base64 -d | cut -d, -f3
+cat $TOKEN | cut -d. -f2 | base64 -d 2>/dev/null | cut -d, -f5 | cut -d: -f2 | sed 's/"//g'
+#cat $TOKEN | cut -d. -f2 | base64 -d 2>/dev/null | cut -d, -f5 | cut -d: -f2 | sed 's/"//g' | xsel -p
