@@ -1,0 +1,4 @@
+#!/usr/bin/sh
+
+unset QT_QPA_PLATFORM
+QT_QPA_PLATFORM=xcb /usr/bin/zoom
