@@ -1,0 +1,25 @@
+#!/usr/bin/zsh
+
+# A shim to migrate to bemenu that looks like dmenu
+
+typeset -r NB='#222222' # normal background
+typeset -r NF='#BBBBBB' # normal foreground
+typeset -r SB='#005577' # selected background
+typeset -r SF='#EEEEEE' # selected foreground
+
+bemenu \
+  --prompt='' \
+  --scrollbar=autohide \
+  --nb=$NB \
+  --tb=$NB \
+  --fb=$NB \
+  --scb=$NB \
+  --nf=$NF \
+  --tf=$NF \
+  --ff=$NF \
+  --scf=$NF \
+  --sb=$SB \
+  --hb=$SB \
+  --sf=$Sf \
+  --hf=$SF \
+  "$@"
