@@ -1,3 +1,0 @@
-#!/usr/bin/zsh
-
-GDK_DPI_SCALE=1.5 /usr/bin/eclipse
