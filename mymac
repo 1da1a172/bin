@@ -1,14 +1,13 @@
 #!/usr/bin/zsh
 
 typeset -a LINKS
+typeset mac
 
-for int in $(ls -1 /sys/class/net); do
-  [[ "$int" != "lo" ]] \
-    && (( $(< /sys/class/net/$int/carrier) )) \
-    && LINKS+=($int)
+for int in /sys/class/net/*; do
+  [[ "$(cat $int/operstate)" == 'up' ]] && LINKS+=($int)
 done
 
-if [[ ${#LINKS} = 0 ]]; then
+if [[ ${#LINKS} == 0 ]]; then
   exit 1
 elif [[ ${#LINKS} > 1 ]]; then
   int=$(dmenu -p "Select an interface:" <<< ${(F)LINKS})
@@ -16,5 +15,4 @@ else
   int=$LINKS
 fi
 
-xclip < /sys/class/net/$int/address
-mac-formats
+tr -d '\n' < $int/address | mac-formats

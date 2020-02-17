@@ -8,13 +8,29 @@ typeset -ir EXIT_CLEAN=7
 typeset -ir ERR_BAD_ARGS=257
 
 function main() {
-  typeset mac="$(xclip -o)"
+  typeset mac
 
-  printf '%s' "$mac" | valid_mac \
-    || mac=$(prompt_mac) \
-    || bail $?
+  read mac
 
-  {menu_select 'Select a format:' $(all_formats <<< $mac) || xclip -o} | tr -d '\n' | xclip
+  valid_mac <<< "$mac" || mac=$(paste)
+  valid_mac <<< "$mac" || mac=$(prompt_mac) || bail $?
+
+  {menu_select 'Select a format:' $(all_formats <<< $mac) | tr -d '\n' || paste} | copy
+}
+
+function copy() {
+  [[ -n "$WAYLAND_DISPLAY" ]] && wl-copy -p
+  [[ -n "$DISPLAY" ]] && xclip
+}
+
+function paste() {
+  if [[ -n "$WAYLAND_DISPLAY" ]]; then
+    wl-paste -pn
+  elif [[ -n "$DISPLAY" ]]; then
+    xclip -o
+  else
+    printf 'Unknown graphical environment.\n' >&2
+  fi
 }
 
 function all_formats() {
