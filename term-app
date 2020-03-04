@@ -1,47 +1,72 @@
-#!/usr/bin/zsh
+#!/usr/bin/env python3
+''' Run an application in a new tmux session.
+The session name is derived from the application name, and terminates with it.
+Pass in the application to run (with arguments) as positional command line args.
+dmenu is used, if no application is given.
+'''
 
-#
-# Run an application in a new tmux session.
-# The session will have the name of the application.
-# The session terminates with the application.
-# $1 is the shell command.
-# Any additional arguments are passed as arguments of $1
-# If $1 is not given, a dmenu prompt is used
-# If there is a collision with an existing session, a serialized suffix is used
-#
+import os
+import subprocess
+import sys
+from typing import List
 
-typeset -ra SESSIONS=($(tmux ls -F '#{session_name}'))
-typeset app
-typeset serial
-typeset session
-typeset args
+import dmenu
+import libtmux
 
-# get the application to run, prompting with dmenu if necessary
-app="${1-$(dmenu_path | dmenu)}"
+def main(argv: List[str]) -> int:
+    ''' Launch cmd in a new tmux session '''
+    if len(argv) > 1:
+        cmd = argv[1:]
+    else:
+        try:
+            cmd = dmenu.show(_dmenu_path()).split(' ')
+        except AttributeError: # user cancelled dmenu
+            return 0
 
-# quit gracefully if no app was given/chosen
-[[ -n "${app}" ]] || exit
+    mux = libtmux.Server()
+    session_name = _gen_session_name(cmd[0], mux)
 
-# get the app's arguments, if any
-if [[ $# > 1 ]]; then
-  shift
-  args="$@"
-fi
+    # launch app in detached tmux session
+    mux.new_session(session_name, window_command=str.join(' ', cmd))
 
-# set session name
-session="${app}"
-## while there is a session name collision
-while [[ -n "${SESSIONS[(R)${session}]}" ]]; do
-  (( serial++ ))
-  session="${app}${serial}"
-done
+    # launch terminal and attach tmux session
+    launch_cmd = [
+        os.getenv("TERMINAL"),
+        '-e',
+        'tmux',
+        'attach',
+        '-t',
+        session_name
+        ]
+    subprocess.Popen(launch_cmd)
 
-# New session with the desired name
-tmux new -d -s "${session}"
+    return 0
 
-# pass the keystrokes to run the command we want
-# It's exed'd so the session closes with the app
-tmux send-keys -t "${session}" "exec ${app} ${args}" ENTER
 
-# Open a terminal emulator and attach the session
-exec $TERMINAL -e tmux attach -t "${session}"
+def _dmenu_path() -> List[str]:
+    return subprocess.run(
+        'dmenu_path',
+        text=True,
+        capture_output=True,
+        check=True
+        ).stdout.split('\n')
+
+
+def _gen_session_name(cmd_name: str,
+                      server: libtmux.server.Server = libtmux.Server()) -> str:
+    ''' generate the session name.
+    cmd_name: name of the command to be run
+    server: tmux server
+    Returns cmd_name, unless there is already an existing session with that
+    name. If there is, then a serial number is appended to prevent collision.
+    '''
+    serial = 0
+    session_name = cmd_name
+    while server.find_where({'session_name': session_name}):
+        serial += 1
+        session_name = f'{cmd_name}{serial}'
+    return session_name
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
