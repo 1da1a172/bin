@@ -1,0 +1,3 @@
+#!/usr/bin/sh
+
+alacritty -e tmux new -s "[$(pwgen 4 1)]"
