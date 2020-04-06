@@ -1,4 +1,12 @@
 #!/usr/bin/sh
 
 unset QT_QPA_PLATFORM
-QT_QPA_PLATFORM=xcb /usr/bin/zoom
+
+export QT_QPA_PLATFORM='xcb'
+export LD_LIBRARY_PATH='/opt/zoom'
+export ZOOM_PATH='/opt/zoom/ZoomLauncher'
+export ZOOM_LOGS="$HOME/.zoom/logs"
+
+[[ ! -d $ZOOM_LOGS ]] && mkdir -p $ZOOM_LOGS
+
+nohup "$ZOOM_PATH" "$@" >> "$ZOOM_LOGS/zoom-terminal.log" 2>&1 &
