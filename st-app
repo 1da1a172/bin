@@ -37,11 +37,4 @@ while [[ -n "${SESSIONS[(R)${session}]}" ]]; do
 done
 
 # New session with the desired name
-tmux new -d -s "${session}"
-
-# pass the keystrokes to run the command we want
-# It's exed'd so the session closes with the app
-tmux send-keys -t "${session}" "exec ${app} ${args}" ENTER
-
-# Open a terminal emulator and attach the session
-exec /usr/bin/st tmux attach -t "${session}"
+exec /usr/bin/st tmux new -s "${session}" ${app} ${args}
