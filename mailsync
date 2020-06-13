@@ -1,0 +1,5 @@
+#!/usr/bin/sh
+
+offlineimap -q \
+  && notify-send offlineimap -t 5000 'Sync completed successfully' \
+  || notify-send offlineimap -t 5000 'Sync failed'
