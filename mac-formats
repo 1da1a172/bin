@@ -31,25 +31,19 @@ function paste() {
 }
 
 function all_formats() {
-  { normalize | tee \
+  { remove_delim | to_lower | tee \
       >(to_upper) \
-      >(to_dash) \
-      >(to_dash | to_upper) \
-      >(remove_delim) \
-      >(remove_delim | to_upper)
+      >(add_delim) \
+      >(add_delim | to_upper) \
+      >(add_delim '-') \
+      >(add_delim '-' | to_upper) \
+      >(add_delim '.' 4) \
+      >(add_delim '.' 4 | to_upper)
   } | sort -Vir
 }
 
 function normalize() {
-  typeset -a macnew
-  typeset stripped
-  typeset -i i
-
-  remove_delim | to_lower | read stripped
-  for i in $(seq 0 2 10); do
-    macnew+=(${stripped:$i:2})
-  done
-  echo ${(j|:|)macnew}
+  remove_delim | to_lower | add_delim ':'
 }
 
 function to_lower() {
@@ -60,12 +54,25 @@ function to_upper() {
   tr '[a-f]' '[A-F]'
 }
 
-function to_dash() {
-  tr ':' '-'
-}
-
 function remove_delim() {
   tr -dc '[:xdigit:]\n'
+}
+
+# assumes 12 undelimited hex chars on stdin
+function add_delim() {
+  typeset macnew
+  typeset stripped
+  typeset -i i
+  typeset d=${1:-:}    # delimiter, default ':'
+  typeset -i l=${2:-2} # length between delimiters, default 2
+
+  read stripped
+
+  macnew="${stripped:0:$l}"
+  for i in $(seq $l $l $((12 - l))); do
+    macnew+="$d${stripped:$i:$l}"
+  done
+  echo $macnew
 }
 
 function bail() {
