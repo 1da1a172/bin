@@ -23,6 +23,6 @@ bemenu \
   --sf=$Sf \
   --hf=$SF \
   --no-overlap \
-  --monitor=-1 \
   --fn="Anonymous Pro" \
+  --monitor=all \
   "$@"
