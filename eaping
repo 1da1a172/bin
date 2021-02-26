@@ -9,7 +9,7 @@ function help_msg() {
 
 function set_ip_version() {
   if ! $FORCE_V4 && ! $FORCE_V6; then
-    if [[ $1 -eq 4 ]]; then 
+    if [[ $1 -eq 4 ]]; then
       FORCE_V4=true
     elif [[ $1 -eq 6 ]]; then
       FORCE_V6=true
