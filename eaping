@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
 
-source ~/lib/ip.zsh
+source $USER_LIB/ip.zsh
 
 function help_msg() {
   echo 'stub function for help output'
