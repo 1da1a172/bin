@@ -1,3 +1,7 @@
 #!/usr/bin/zsh
 
-slurp | grim -g -
+if [[ "$1" == "-c" ]]; then
+  slurp | grim -g - - | wl-copy
+else
+  slurp | grim -g -
+fi
