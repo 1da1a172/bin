@@ -1,8 +1,0 @@
-#!/usr/bin/zsh
-
-typeset -x STUDIO_JDK='/usr/lib/jvm/java-11-openjdk'
-typeset -x _JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=lcd -Dawt.autoScale=quarter -Djdk.gtk.version=3 -Dsun.java2d.opengl=true'
-typeset -x _JAVA_AWT_WM_NONREPARENTING=1
-typeset -x JAVA_FONTS='/usr/share/fonts/TTF'
-
-exec /usr/bin/android-studio
