@@ -1,0 +1,3 @@
+#!/usr/bin/sh
+
+XDG_CURRENT_DESKTOP=gnome /usr/bin/zoom
