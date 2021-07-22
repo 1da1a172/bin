@@ -1,0 +1,58 @@
+#!/usr/bin/zsh
+
+typeset -r PIDFILE="/run/user/$UID/openconnect.pid"
+typeset -r DEV="/sys/devices/virtual/net/oc0"
+
+function create_oc0() {
+  sudo ip tuntap add oc0 mode tun user $USER
+}
+
+function destroy_oc0() {
+  sudo ip tuntap del oc0 mode tun
+}
+
+function start_vpn() {
+  openconnect \
+    --background \
+    --config=$HOME/.config/openconnect/config \
+    --pid-file="$PIDFILE" \
+    'https://vpn.nis.vt.edu/nis'
+}
+
+function stop_vpn() {
+  kill -SIGTERM -- $(cat "$PIDFILE")
+}
+
+function restart_vpn() {
+  kill -SIGUSR2 -- $(cat "$PIDFILE")
+}
+
+function get_pw() {
+  pass show 'waldrep@vt.edu/netadmin' \
+    | head -n 1
+}
+
+function int_up() {
+  [[ -d "$DEV" ]]
+}
+
+function proto_up() {
+  [[ "$(cat "$DEV/operstate")" == 'up' ]]
+}
+
+case "$1" in
+  ('start')
+    int_up || create_oc0
+    proto_up || {get_pw | start_vpn}
+    ;;
+  ('restart')
+    restart_vpn
+    ;;
+  ('stop')
+    proto_up && stop_vpn
+    while proto_up; do
+      sleep 1
+    done
+    int_up && destroy_oc0
+    ;;
+esac
