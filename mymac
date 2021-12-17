@@ -15,4 +15,4 @@ else
   int=$LINKS
 fi
 
-tr -d '\n' < $int/address | mac-formats
+mac-formats $(cat $int/address)

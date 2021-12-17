@@ -1,7 +1,7 @@
 #!/usr/bin/zsh
 #
 # Convert a MAC address to various formats
-# Reads the Wayland and xorg primary for a valid mac
+# Reads the first arg, Wayland primary, and xorg primary for a valid mac
 
 typeset -ir EXIT_CLEAN=7
 typeset -ir ERR_BAD_ARGS=257
@@ -9,10 +9,17 @@ typeset -ir ERR_BAD_ARGS=257
 function main() {
   typeset mac
 
-  mac=$(paste)
+  if [[ "$1" ]]; then
+    mac="$1"
+  else
+    mac=$(paste)
+  fi
   valid_mac <<< "$mac" || mac=$(prompt_mac) || bail $?
 
-  {menu_select 'Select a format:' $(all_formats <<< $mac) | tr -d '\n' || paste} | copy
+  { menu_select 'Select a format:' $(all_formats <<< $mac) \
+      | tr -d '\n' \
+      || paste
+  } | copy
 }
 
 function copy() {
