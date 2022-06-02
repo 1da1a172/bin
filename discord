@@ -1,0 +1,6 @@
+#!/usr/bin/sh
+
+exec /usr/bin/electron15             \
+  --enable-features=UseOzonePlatform \
+  --ozone-platform=wayland           \
+  /usr/lib/discord/app.asar
