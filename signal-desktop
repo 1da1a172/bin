@@ -1,6 +1,5 @@
-#!/usr/bin/zsh
-
-exec /usr/bin/electron16 \
-  --enable-features=UseOzonePlatform \
+#!/bin/sh
+/usr/bin/signal-desktop \
+  --enbale-features=UseOzonePlatform \
   --ozone-platform=wayland \
-  /usr/lib/signal-desktop/resources/app.asar
+  "$@"
