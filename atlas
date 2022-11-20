@@ -1,3 +1,3 @@
 #!/usr/bin/zsh
 
-PATH=/usr/lib/jvm/java-8-openjdk/jre/bin/:$PATH java -jar "${USER_LIB}/vt-ATLAS.jar"
+PATH=/usr/lib/jvm/java-8-jre/jre/bin/:$PATH java -jar "${USER_LIB}/vt-ATLAS.jar"
