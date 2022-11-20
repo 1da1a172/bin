@@ -18,7 +18,7 @@ bemenu \
   --scf=$NF \
   --sb=$SB \
   --hb=$SB \
-  --sf=$Sf \
+  --sf=$SF \
   --hf=$SF \
   --no-overlap \
   --fn="Anonymous Pro" \
