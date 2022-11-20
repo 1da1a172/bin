@@ -12,10 +12,12 @@ bemenu \
   --tb=$NB \
   --fb=$NB \
   --scb=$NB \
+  --ab=$NB \
   --nf=$NF \
   --tf=$NF \
   --ff=$NF \
   --scf=$NF \
+  --af=$NF \
   --sb=$SB \
   --hb=$SB \
   --sf=$SF \
