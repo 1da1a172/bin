@@ -1,0 +1,4 @@
+#!/usr/bin/bash
+
+source pyvenvs/yewtube/bin/activate
+exec yt "$@"
