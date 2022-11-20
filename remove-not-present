@@ -1,3 +1,14 @@
-#!/usr/bin/zsh
+#!/usr/bin/env -S jq -f
 
-jq 'walk(if type == "object" then (if ._present == false then ._action="delete"|del(._present)  else . end ) else . end)'
+walk(
+  if type == "object" then (
+    if ._present == false then
+      ._action = "delete"
+      | del(._present)
+    else
+      .
+    end
+  ) else
+    .
+  end
+)

@@ -1,3 +1,11 @@
-#!/usr/bin/zsh
+#!/usr/bin/env -S jq -f
 
-jq 'walk( if type == "object" then (to_entries | del(.[] | select(.value._flags?.default == true)) | from_entries) else . end )'
+walk(
+  if type == "object" then (
+    to_entries
+    | del(.[] | select(.value._flags?.default == true))
+    | from_entries
+  ) else
+    .
+  end
+)
