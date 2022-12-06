@@ -1,4 +1,4 @@
 #!/usr/bin/bash
 
-source pyvenvs/catt/bin/activate
+source ~/pyvenvs/catt/bin/activate
 exec catt "$@"
