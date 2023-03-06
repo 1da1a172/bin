@@ -3,4 +3,4 @@
 printf '%s,%s' \
   "$(pass show waldrep@vt.edu/pid | head -n 1)" \
   "$(pass otp code waldrep@vt.edu/pid)"         \
-  | wl-copy -pon
+  | wl-copy -on
