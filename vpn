@@ -32,6 +32,21 @@ function restart_vpn() {
   kill -SIGUSR2 -- $(cat "$PIDFILE")
 }
 
+function status() {
+  if ! int_up; then
+    echo 'Interface oc0 not created'
+  elif ! proto_up; then
+    echo 'Protocol down'
+  fi
+
+  if ! [[ -f "$PIDFILE" ]]; then
+    echo 'openconnect PID file not found'
+    exit 1
+  fi
+
+  kill -SIGUSR1 -- $(cat "$PIDFILE")
+}
+
 function int_up() {
   [[ -d "$DEV" ]]
 }
@@ -54,5 +69,8 @@ case "$1" in
       sleep 1
     done
     int_up && destroy_oc0
+    ;;
+  ('status')
+    status
     ;;
 esac
