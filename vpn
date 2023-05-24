@@ -64,6 +64,7 @@ case "$1" in
     restart_vpn
     ;;
   ('stop')
+    int_up || exit 0
     proto_up && stop_vpn
     while proto_up; do
       sleep 1
