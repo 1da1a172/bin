@@ -12,11 +12,16 @@ function destroy_oc0() {
 }
 
 function start_vpn() {
+  local keyfile="$(mktemp --tmpdir "$USER-vpn-XXXXXXXX.rsa")"
+  chmod 600 $keyfile
+  pass show 'waldrep@vt.edu/pdc' > "$keyfile"
   openconnect \
     --background \
     --config=$HOME/.config/openconnect/config \
+    --sslkey="$keyfile" \
     --pid-file="$PIDFILE" \
-    'https://vpn.nis.vt.edu/nis'
+    'https://vpn.nis.vt.edu/nis/certauth'
+  rm "$keyfile"
 }
 
 function stop_vpn() {
@@ -25,11 +30,6 @@ function stop_vpn() {
 
 function restart_vpn() {
   kill -SIGUSR2 -- $(cat "$PIDFILE")
-}
-
-function get_pw() {
-  pass show 'waldrep@vt.edu/netadmin' \
-    | head -n 1
 }
 
 function int_up() {
@@ -43,7 +43,7 @@ function proto_up() {
 case "$1" in
   ('start')
     int_up || create_oc0
-    proto_up || {get_pw | start_vpn}
+    proto_up || start_vpn
     ;;
   ('restart')
     restart_vpn
