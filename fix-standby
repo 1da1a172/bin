@@ -1,0 +1,3 @@
+#!/usr/bin/zsh
+
+echo disabled | sudo tee /sys/devices/pci0000:00/0000:00:14.0/power/wakeup > /dev/null
