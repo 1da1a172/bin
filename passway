@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/home/waldrep/pyvenvs/passway/bin/python
 
 import dmenu
 import passpy
