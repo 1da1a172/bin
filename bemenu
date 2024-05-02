@@ -1,0 +1,30 @@
+#!/usr/bin/zsh
+
+typeset -r NB='#282828'
+typeset -r AB='#32302f'
+typeset -r NF='#ebdbb2'
+typeset -r SB='#d79921'
+typeset -r SF='#3c3836'
+typeset -x BEMENU_SCALE=2
+
+/usr/bin/bemenu \
+  --prompt='' \
+  --scrollbar=autohide \
+  --nb=$NB \
+  --tb=$NB \
+  --fb=$NB \
+  --scb=$NB \
+  --ab=$AB \
+  --nf=$NF \
+  --tf=$NF \
+  --ff=$NF \
+  --scf=$NF \
+  --af=$NF \
+  --sb=$SB \
+  --hb=$SB \
+  --sf=$SF \
+  --hf=$SF \
+  --no-overlap \
+  --fn="Anonymous Pro" \
+  --monitor=all \
+  "$@"
