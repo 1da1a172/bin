@@ -1,0 +1,7 @@
+#!/usr/bin/zsh
+# Generate a "standard" password (22 random alphanumeric characters)
+# This is the minimum length of such characters to achieve 128 bits of entropy
+
+tr -dc abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 \
+  < /dev/urandom \
+  | head -c 22
