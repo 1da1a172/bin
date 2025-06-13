@@ -27,4 +27,6 @@ typeset -x BEMENU_SCALE=2
   --no-overlap \
   --fn="Anonymous Pro" \
   --monitor=all \
+  --binding vim \
+  --vim-esc-exits \
   "$@"
