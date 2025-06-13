@@ -5,7 +5,6 @@ typeset -r AB='#32302f'
 typeset -r NF='#ebdbb2'
 typeset -r SB='#d79921'
 typeset -r SF='#3c3836'
-typeset -x BEMENU_SCALE=2
 
 /usr/bin/bemenu \
   --prompt='' \
@@ -25,7 +24,7 @@ typeset -x BEMENU_SCALE=2
   --sf=$SF \
   --hf=$SF \
   --no-overlap \
-  --fn="Anonymous Pro" \
+  --fn="Anonymous Pro 24" \
   --monitor=all \
   --binding vim \
   --vim-esc-exits \
