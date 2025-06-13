@@ -5,4 +5,4 @@ typeset bin="/usr/bin/${0:t}"
   exit 1
 }
 
-exec "/usr/bin/${0:t}" -use_players_dir
+exec "/usr/bin/${0:t}" -use_players_dir "$@"
