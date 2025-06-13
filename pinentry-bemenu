@@ -1,0 +1,57 @@
+#!/usr/bin/zsh
+
+typeset -r background='#1D2021'
+typeset -r foreground='#EBDBB2'
+typeset -r black='#282828'
+typeset -r red='#CC241D'
+typeset -r green='#98971A'
+typeset -r yellow='#D79921'
+typeset -r blue='#458588'
+typeset -r magenta='#B16286'
+typeset -r cyan='#689D6A'
+typeset -r white='#A89984'
+typeset -r bright_black='#928374'
+typeset -r bright_red='#FB4934'
+typeset -r bright_green='#B8BB26'
+typeset -r bright_yellow='#FABD2F'
+typeset -r bright_blue='#83A598'
+typeset -r bright_magenta='#D3869B'
+typeset -r bright_cyan='#8EC07C'
+typeset -r bright_white='#EBDBB2'
+
+typeset BEMENU_OPTS=''
+
+# other options
+BEMENU_OPTS+='--no-overlap '
+BEMENU_OPTS+='--fn="Anonymous Pro 40" '
+BEMENU_OPTS+='--monitor=all '
+BEMENU_OPTS+='--center '
+
+# normal
+BEMENU_OPTS+="--nb=$background "
+BEMENU_OPTS+="--nf=$foreground "
+
+# selected
+BEMENU_OPTS+="--sb=$yellow "
+BEMENU_OPTS+="--sf=$black "
+
+# title
+BEMENU_OPTS+="--tb=$green "
+BEMENU_OPTS+="--tf=$black "
+
+# filter
+BEMENU_OPTS+="--fb=$green "
+BEMENU_OPTS+="--ff=$black "
+
+# highlighted
+BEMENU_OPTS+="--hb=$yellow "
+BEMENU_OPTS+="--hf=$black "
+
+# scrollbar
+BEMENU_OPTS+="--scb=$background "
+BEMENU_OPTS+="--scf=$foreground "
+
+typeset -x BEMENU_OPTS
+
+/usr/bin/pinentry-bemenu \
+  "$@"
