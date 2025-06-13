@@ -1,0 +1,21 @@
+#!/usr/bin/zsh
+
+if [[ "$#" < 5 ]]; then
+  echo "Usage: $0 <file> <argname> <argvalue1> <argvalue2> <filter> [diff options]"
+  exit 1
+fi
+
+typeset file="$1"
+typeset argname="$2"
+typeset argvalue1="$3"
+typeset argvalue2="$4"
+typeset filter="$5"
+shift 5
+
+[[ "$#" == 0 ]] && 1='-u'
+
+diff \
+  --color \
+  "$@" \
+  <(jq --arg "$argname" "$argvalue1" "$filter" "$file") \
+  <(jq --arg "$argname" "$argvalue2" "$filter" "$file")
