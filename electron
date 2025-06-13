@@ -1,6 +1,0 @@
-#!/usr/bin/zsh
-
-exec /usr/bin/${0:t} \
-  --enable-features=UseOzonePlatform \
-  --ozone-platform=wayland \
-  "$@"
