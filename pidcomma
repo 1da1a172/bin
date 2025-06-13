@@ -1,6 +1,7 @@
 #!/usr/bin/zsh
 
+typeset pass_entry="waldrep@vt.edu/login/prod"
 printf '%s,%s' \
-  "$(pass show waldrep@vt.edu/pid | head -n 1)" \
-  "$(pass otp code waldrep@vt.edu/pid)"         \
+  "$(pass show "$pass_entry" | head -n 1)" \
+  "$(pass otp code "$pass_entry")"         \
   | wl-copy -on
