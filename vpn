@@ -1,26 +1,28 @@
 #!/usr/bin/zsh
 
 typeset -r PIDFILE="/run/user/$UID/openconnect.pid"
-typeset -r DEV="/sys/devices/virtual/net/oc0"
+typeset -r DEV="/sys/devices/virtual/net/tun0"
 
-function create_oc0() {
-  sudo ip tuntap add oc0 mode tun user $USER
+function create_tun0() {
+  sudo ip tuntap add tun0 mode tun user $USER
 }
 
-function destroy_oc0() {
-  sudo ip tuntap del oc0 mode tun
+function destroy_tun0() {
+  sudo ip tuntap del tun0 mode tun
 }
 
 function start_vpn() {
   local keyfile="$(mktemp --tmpdir "$USER-vpn-XXXXXXXX.rsa")"
+  local configfile="$HOME/.config/openconnect/cisco-cert.conf"
+  local url='https://vpn.vt.edu/NIS-Cert'
   chmod 600 $keyfile
   pass show 'waldrep@vt.edu/pdc' > "$keyfile"
   openconnect \
     --background \
-    --config=$HOME/.config/openconnect/config \
-    --sslkey="$keyfile" \
     --pid-file="$PIDFILE" \
-    'https://vpn.nis.vt.edu/nis/certauth'
+    --config="$configfile" \
+    --sslkey="$keyfile" \
+    "$url"
   rm "$keyfile"
 }
 
@@ -34,7 +36,7 @@ function restart_vpn() {
 
 function status() {
   if ! int_up; then
-    echo 'Interface oc0 not created'
+    echo 'Interface tun0 not created'
   elif ! proto_up; then
     echo 'Protocol down'
   fi
@@ -57,8 +59,8 @@ function proto_up() {
 
 case "$1" in
   ('start')
-    int_up || create_oc0
-    proto_up || start_vpn
+    int_up || create_tun0
+    proto_up || start_vpn "$2"
     ;;
   ('restart')
     restart_vpn
@@ -69,7 +71,7 @@ case "$1" in
     while proto_up; do
       sleep 1
     done
-    int_up && destroy_oc0
+    int_up && destroy_tun0
     ;;
   ('status')
     status
