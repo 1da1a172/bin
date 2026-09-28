@@ -1,0 +1,10 @@
+#!/usr/bin/zsh
+
+mac-formats $(
+  echo $((
+    [#16] 0x$(dd if=/dev/random bs=6 count=1 status=none| xxd -p)
+      & 0xfeffffffffff
+      | 0x020000000000
+  )) \
+  | cut -f 2 -d \#
+)
