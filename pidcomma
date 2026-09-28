@@ -1,6 +1,6 @@
 #!/usr/bin/zsh
 
-typeset pass_entry="waldrep@vt.edu/login/prod"
+typeset pass_entry="waldrep@vt.edu/login"
 printf '%s,%s' \
   "$(pass show "$pass_entry" | head -n 1)" \
   "$(pass otp code "$pass_entry")"         \
