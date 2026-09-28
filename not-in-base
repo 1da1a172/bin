@@ -1,0 +1,8 @@
+#!/usr/bin/zsh
+
+typeset implicit_pkgs=()
+
+for pkg in $(pacman -Qi base base-devel | grep '^Depends On *: ' | cut -f 2 -d : | sort); do
+  [[ -n "$pkg" ]] && implicit_pkgs+=("$pkg")
+done
+for pkg ("$@") [[ -z "${implicit_pkgs[(r)${pkg}]}" ]] && echo "$pkg"
